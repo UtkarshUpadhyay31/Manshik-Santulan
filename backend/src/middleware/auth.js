@@ -5,12 +5,18 @@ import jwt from 'jsonwebtoken';
  */
 export const authMiddleware = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    let token;
 
-    if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No token provided. Please login first.' 
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token || token === 'none') {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided. Please login first.'
       });
     }
 
@@ -18,9 +24,9 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Invalid or expired token. Please login again.' 
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token. Please login again.'
     });
   }
 };
@@ -31,9 +37,9 @@ export const authMiddleware = (req, res, next) => {
  */
 export const adminMiddleware = (req, res, next) => {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Access denied. Admin privileges required.' 
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin privileges required.'
     });
   }
   next();

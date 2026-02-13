@@ -9,7 +9,14 @@ import {
   getAnonymousMoodData,
   getAIConfig,
   updateAIConfig,
-  getAIAnalytics
+  getAIAnalytics,
+  getAllProfessionals,
+  toggleProfessionalStatus,
+  deleteProfessional,
+  getAllBlogs,
+  createBlog,
+  toggleBlogFeatured,
+  deleteBlog
 } from '../controllers/adminController.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
@@ -34,5 +41,16 @@ router.delete('/users/:userId', deleteUser);
 router.get('/ai-config', getAIConfig);
 router.put('/ai-config', updateAIConfig);
 router.get('/ai-analytics', getAIAnalytics);
+
+// Professional management
+router.get('/professionals', getAllProfessionals);
+router.put('/professionals/:type/:id', toggleProfessionalStatus);
+router.delete('/professionals/:type/:id', deleteProfessional);
+
+// Blog management
+router.get('/blogs', getAllBlogs);
+router.post('/blogs', createBlog);
+router.put('/blogs/:id/featured', toggleBlogFeatured);
+router.delete('/blogs/:id', deleteBlog);
 
 export default router;

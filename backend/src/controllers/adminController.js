@@ -2,6 +2,113 @@ import User from '../models/User.js';
 import MoodEntry from '../models/MoodEntry.js';
 import AIUserContext from '../models/AIUserContext.js';
 import AIEngineConfig from '../models/AIEngineConfig.js';
+import Mentor from '../models/Mentor.js';
+import Doctor from '../models/Doctor.js';
+import Blog from '../models/Blog.js';
+
+
+
+/**
+ * Get All Professionals (Mentors + Doctors)
+ */
+export const getAllProfessionals = async (req, res) => {
+  try {
+    const mentors = await Mentor.find().sort({ createdAt: -1 });
+    const doctors = await Doctor.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      mentors,
+      doctors
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching professionals' });
+  }
+};
+
+/**
+ * Verify Professional
+ */
+export const toggleProfessionalStatus = async (req, res) => {
+  try {
+    const { id, type } = req.params;
+    const { isActive, verified } = req.body;
+
+    let pro;
+    if (type === 'mentor') {
+      pro = await Mentor.findByIdAndUpdate(id, { isActive }, { new: true });
+    } else {
+      pro = await Doctor.findByIdAndUpdate(id, { verified }, { new: true });
+    }
+
+    if (!pro) return res.status(404).json({ success: false, message: 'Professional not found' });
+
+    res.status(200).json({ success: true, message: 'Status updated', data: pro });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error updating professional' });
+  }
+};
+
+/**
+ * Delete Professional
+ */
+export const deleteProfessional = async (req, res) => {
+  try {
+    const { id, type } = req.params;
+    if (type === 'mentor') {
+      await Mentor.findByIdAndDelete(id);
+    } else {
+      await Doctor.findByIdAndDelete(id);
+    }
+    res.status(200).json({ success: true, message: 'Professional deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error deleting professional' });
+  }
+};
+
+/**
+ * Blog Management
+ */
+export const getAllBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, blogs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching blogs' });
+  }
+};
+
+export const createBlog = async (req, res) => {
+  try {
+    const blog = await Blog.create(req.body);
+    res.status(201).json({ success: true, blog });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error creating blog' });
+  }
+};
+
+export const deleteBlog = async (req, res) => {
+  try {
+    await Blog.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: 'Blog deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error deleting blog' });
+  }
+};
+
+export const toggleBlogFeatured = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+
+    blog.isFeatured = !blog.isFeatured;
+    await blog.save();
+
+    res.status(200).json({ success: true, blog });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error toggling featured status' });
+  }
+};
 
 /**
  * Get Dashboard Analytics - Admin Overview
