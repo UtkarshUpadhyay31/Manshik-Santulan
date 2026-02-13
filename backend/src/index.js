@@ -1,3 +1,4 @@
+// Brain integrated - AI Coach Ready
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -12,6 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import moodRoutes from './routes/moodRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import professionalRoutes from './routes/professionalRoutes.js';
+import aiCoachRoutes from './routes/aiCoachRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -72,7 +74,8 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       mood: '/api/mood',
       admin: '/api/admin',
-      professionals: '/api/professionals'
+      professionals: '/api/professionals',
+      aiCoach: '/api/ai-coach'
     }
   });
 });
@@ -82,6 +85,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/mood', moodRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/professionals', professionalRoutes);
+app.use('/api/ai-coach', aiCoachRoutes);
 
 // 404 handler
 app.use((req, res) => {

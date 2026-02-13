@@ -6,7 +6,10 @@ import {
   deactivateUser,
   reactivateUser,
   deleteUser,
-  getAnonymousMoodData
+  getAnonymousMoodData,
+  getAIConfig,
+  updateAIConfig,
+  getAIAnalytics
 } from '../controllers/adminController.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
@@ -26,5 +29,10 @@ router.get('/users/:userId', getUserDetails);
 router.put('/users/:userId/deactivate', deactivateUser);
 router.put('/users/:userId/reactivate', reactivateUser);
 router.delete('/users/:userId', deleteUser);
+
+// AI Engine Management
+router.get('/ai-config', getAIConfig);
+router.put('/ai-config', updateAIConfig);
+router.get('/ai-analytics', getAIAnalytics);
 
 export default router;

@@ -1,5 +1,7 @@
 import User from '../models/User.js';
 import MoodEntry from '../models/MoodEntry.js';
+import AIUserContext from '../models/AIUserContext.js';
+import AIEngineConfig from '../models/AIEngineConfig.js';
 
 /**
  * Get Dashboard Analytics - Admin Overview
@@ -7,14 +9,14 @@ import MoodEntry from '../models/MoodEntry.js';
 export const getDashboardAnalytics = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ role: 'user' });
-    const activeUsers = await User.countDocuments({ 
-      role: 'user', 
-      isActive: true 
+    const activeUsers = await User.countDocuments({
+      role: 'user',
+      isActive: true
     });
     const lastSevenDays = new Date();
     lastSevenDays.setDate(lastSevenDays.getDate() - 7);
-    
-    const newUsers = await User.countDocuments({ 
+
+    const newUsers = await User.countDocuments({
       role: 'user',
       createdAt: { $gte: lastSevenDays }
     });
@@ -25,7 +27,7 @@ export const getDashboardAnalytics = async (req, res) => {
     });
 
     const moodTrends = calculateMoodTrends(moodEntries);
-    const averageStress = moodEntries.length > 0 
+    const averageStress = moodEntries.length > 0
       ? Math.round(moodEntries.reduce((sum, e) => sum + e.stressLevel, 0) / moodEntries.length)
       : 0;
 
@@ -42,9 +44,9 @@ export const getDashboardAnalytics = async (req, res) => {
     });
   } catch (error) {
     console.error('Get analytics error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching analytics' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching analytics'
     });
   }
 };
@@ -77,9 +79,9 @@ export const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('Get all users error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching users' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users'
     });
   }
 };
@@ -93,9 +95,9 @@ export const getUserDetails = async (req, res) => {
 
     const user = await User.findById(userId).select('-password');
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
     }
 
@@ -109,9 +111,9 @@ export const getUserDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Get user details error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching user details' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching user details'
     });
   }
 };
@@ -125,9 +127,9 @@ export const deactivateUser = async (req, res) => {
     const { reason } = req.body;
 
     if (userId === req.user.userId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Cannot deactivate your own account' 
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot deactivate your own account'
       });
     }
 
@@ -138,9 +140,9 @@ export const deactivateUser = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
     }
 
@@ -151,9 +153,9 @@ export const deactivateUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Deactivate user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error deactivating user' 
+    res.status(500).json({
+      success: false,
+      message: 'Error deactivating user'
     });
   }
 };
@@ -172,9 +174,9 @@ export const reactivateUser = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
     }
 
@@ -185,9 +187,9 @@ export const reactivateUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Reactivate user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error reactivating user' 
+    res.status(500).json({
+      success: false,
+      message: 'Error reactivating user'
     });
   }
 };
@@ -200,9 +202,9 @@ export const deleteUser = async (req, res) => {
     const { userId } = req.params;
 
     if (userId === req.user.userId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Cannot delete your own account' 
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete your own account'
       });
     }
 
@@ -216,9 +218,9 @@ export const deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error deleting user' 
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting user'
     });
   }
 };
@@ -273,9 +275,9 @@ export const getAnonymousMoodData = async (req, res) => {
     });
   } catch (error) {
     console.error('Get mood data error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching mood data' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching mood data'
     });
   }
 };
@@ -299,4 +301,85 @@ const calculateMoodTrends = (moodEntries) => {
   });
 
   return moodCount;
+};
+
+/**
+ * AI Engine Config Management (Admin)
+ */
+export const getAIConfig = async (req, res) => {
+  try {
+    let config = await AIEngineConfig.findOne();
+    if (!config) {
+      // Return default or empty
+      return res.status(200).json({ success: true, config: null });
+    }
+    res.status(200).json({ success: true, config });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching AI config' });
+  }
+};
+
+export const updateAIConfig = async (req, res) => {
+  try {
+    const { emotions, crisisKeywords, globalTemplates } = req.body;
+
+    let config = await AIEngineConfig.findOne();
+    if (!config) {
+      config = new AIEngineConfig({ emotions, crisisKeywords, globalTemplates });
+    } else {
+      config.emotions = emotions || config.emotions;
+      config.crisisKeywords = crisisKeywords || config.crisisKeywords;
+      config.globalTemplates = globalTemplates || config.globalTemplates;
+    }
+
+    await config.save();
+    res.status(200).json({ success: true, message: 'AI configuration updated', config });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error updating AI config' });
+  }
+};
+
+/**
+ * AI Emotional Analytics (Admin)
+ */
+export const getAIAnalytics = async (req, res) => {
+  try {
+    const totalSessions = await AIUserContext.countDocuments();
+
+    const emotionalTrends = await AIUserContext.aggregate([
+      {
+        $group: {
+          _id: '$dominantEmotion',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    const modeUsage = await AIUserContext.aggregate([
+      {
+        $group: {
+          _id: '$currentMode',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const crisisCount = await AIUserContext.countDocuments({ triggerTopics: { $in: ['suicide', 'self harm', 'death', 'kill'] } }); // Simple proxy
+    const avgConfidence = 0.85; // Placeholder for now
+
+    res.status(200).json({
+      success: true,
+      analytics: {
+        totalSessions,
+        topEmotion: emotionalTrends[0]?._id || 'Neutral',
+        crisisCount,
+        avgConfidence,
+        emotionalTrends,
+        modeUsage
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching AI analytics' });
+  }
 };

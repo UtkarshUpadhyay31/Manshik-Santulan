@@ -9,6 +9,7 @@ import TherapistList from './pages/TherapistList';
 import ProfessionalProfile from './pages/ProfessionalProfile';
 import Navbar from './components/Navbar';
 import SessionPage from './pages/SessionPage';
+import AdminAIDashboard from './pages/AdminAIDashboard';
 
 const AppContent = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const AppContent = () => {
         <Route path="/therapists" element={<TherapistList />} />
         <Route path="/professional/:id" element={<ProfessionalProfile />} />
         <Route path="/session/:id" element={<SessionPage />} />
+        <Route path="/admin/ai-coach" element={<AdminAIDashboard />} />
 
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/" replace />} />
