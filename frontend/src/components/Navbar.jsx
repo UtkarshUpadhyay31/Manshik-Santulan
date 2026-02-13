@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle, LogOut, ShieldCheck } from 'lucide-react';
 import { Button, Container } from './UI';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { logout, isAuthenticated, isAdmin, user } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -57,11 +59,46 @@ const Navbar = () => {
                             {item.label}
                         </Link>
                     ))}
-                    <Link to="/dashboard">
-                        <Button size="sm" className="rounded-full px-6 bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 transition-all hover:-translate-y-0.5">
-                            Dashboard <ArrowRight size={16} className="ml-2" />
-                        </Button>
-                    </Link>
+
+                    {isAuthenticated ? (
+                        <div className="flex items-center gap-4 border-l border-slate-200 pl-8 ml-4">
+                            {isAdmin && (
+                                <Link to="/admin">
+                                    <Button variant="ghost" size="sm" className="gap-2 text-amber-600 hover:bg-amber-50">
+                                        <ShieldCheck size={16} /> Admin
+                                    </Button>
+                                </Link>
+                            )}
+                            <span className="text-sm font-semibold text-slate-700">
+                                Hi, {user?.firstName}
+                            </span>
+                            <Link to="/dashboard">
+                                <Button size="sm" className="rounded-full px-6 bg-slate-900 hover:bg-slate-800 text-white transition-all">
+                                    Dashboard
+                                </Button>
+                            </Link>
+                            <button
+                                onClick={logout}
+                                className="text-slate-500 hover:text-red-500 transition-colors"
+                                title="Logout"
+                            >
+                                <LogOut size={20} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-4">
+                            <Link to="/login">
+                                <Button variant="ghost" size="sm" className="text-slate-700">
+                                    Log In
+                                </Button>
+                            </Link>
+                            <Link to="/signup">
+                                <Button size="sm" className="rounded-full px-6 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20 transition-all hover:-translate-y-0.5">
+                                    Get Started
+                                </Button>
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -72,7 +109,7 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
-                <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-white/40 p-6 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-300">
+                <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-white/40 p-6 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         return (
@@ -90,11 +127,50 @@ const Navbar = () => {
                             </Link>
                         );
                     })}
-                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mt-2">
-                        <Button className="w-full rounded-2xl bg-slate-900 text-white py-4">
-                            Dashboard <ArrowRight size={20} className="ml-2" />
-                        </Button>
-                    </Link>
+
+                    <div className="border-t border-slate-100 pt-4 mt-2 space-y-3">
+                        {isAuthenticated ? (
+                            <>
+                                {isAdmin && (
+                                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                                        <Button className="w-full rounded-2xl bg-amber-50 text-amber-700 py-4 gap-2 border border-amber-200">
+                                            <ShieldCheck size={20} /> Admin Panel
+                                        </Button>
+                                    </Link>
+                                )}
+                                <div className="px-2 mb-2 text-lg font-bold text-slate-800">
+                                    Hi, {user?.firstName}
+                                </div>
+                                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                                    <Button className="w-full rounded-2xl bg-slate-900 text-white py-4">
+                                        Go to Dashboard <ArrowRight size={20} className="ml-2" />
+                                    </Button>
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="w-full py-4 text-red-500 font-semibold flex items-center justify-center gap-2"
+                                >
+                                    <LogOut size={20} /> Log Out
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                                    <Button variant="ghost" className="w-full py-4 rounded-2xl text-slate-700 border border-slate-200">
+                                        Log In
+                                    </Button>
+                                </Link>
+                                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                                    <Button className="w-full rounded-2xl bg-purple-600 text-white py-4 shadow-xl shadow-purple-600/20">
+                                        Join Now
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
+                    </div>
                 </div>
             )}
         </nav>

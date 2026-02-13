@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Brain, TrendingUp, ArrowRight, Menu, X, Activity, Users, Star, UserCheck } from 'lucide-react';
+import { Heart, Brain, TrendingUp, ArrowRight, Menu, X, Activity, Users, Star, UserCheck, LayoutDashboard } from 'lucide-react';
 import { Button, Container, Card } from '../components/UI';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import BreathingModal from '../components/modals/BreathingModal';
 import MoodCheckModal from '../components/modals/MoodCheckModal';
@@ -11,10 +12,11 @@ import { saveGuestMoodEntry, getGuestMoodHistory } from '../utils/guestMode';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [breathingModalOpen, setBreathingModalOpen] = useState(false);
   const [moodModalOpen, setMoodModalOpen] = useState(false);
   const [coachModalOpen, setCoachModalOpen] = useState(false);
+  const [breathingModalOpen, setBreathingModalOpen] = useState(false);
 
   // State for featured content
   const [featuredMentors, setFeaturedMentors] = useState([]);
@@ -155,7 +157,7 @@ const LandingPage = () => {
             </motion.h1>
 
             <motion.p variants={itemVariants} className="text-xl text-slate-600 mb-16 max-w-2xl leading-relaxed">
-              An anonymous, safe space to track your emotions, build resilience, and find calm. No account needed.
+              A safe, compassionate space to track your emotions, build resilience, and find your inner calm.
             </motion.p>
 
             {/* Premium Mood Selector Interface */}
@@ -191,6 +193,19 @@ const LandingPage = () => {
                 <Button onClick={() => handleActionClick('breathing')} className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all">
                   Start Breathing
                 </Button>
+                {isAuthenticated ? (
+                  <Link to="/dashboard" className="w-full sm:w-auto">
+                    <Button variant="secondary" className="w-full rounded-full px-8 py-6 text-base gap-2 group">
+                      <LayoutDashboard size={20} className="text-purple-600" /> Go to Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup" className="w-full sm:w-auto">
+                    <Button variant="secondary" className="w-full rounded-full px-8 py-6 text-base gap-2 group">
+                      Join Manshik <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                )}
               </div>
             </motion.div>
 

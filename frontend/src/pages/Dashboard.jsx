@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck } from 'lucide-react';
 import { Card, Container, Button } from '../components/UI';
 import { useMoodStore } from '../context/store';
+import { useAuth } from '../context/AuthContext';
 import {
   getGuestMoodHistory,
   saveGuestMoodEntry,
@@ -12,6 +14,7 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, isAdmin } = useAuth();
   const { todayMood, setTodayMood, moodHistory, setMoodHistory, suggestions, setSuggestions } = useMoodStore();
   const [isLoading, setIsLoading] = useState(true);
   const [mood, setMood] = useState('');
@@ -24,44 +27,93 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [user]);
 
-  const loadDashboardData = () => {
+  const loadDashboardData = async () => {
     setIsLoading(true);
-    const guestHistory = getGuestMoodHistory();
-    setMoodHistory(guestHistory);
 
-    if (guestHistory.length > 0) {
-      setTodayMood(guestHistory[guestHistory.length - 1]); // Get last entry
+    if (isAuthenticated && user) {
+      try {
+        // Fetch from API
+        const [historyRes, todayRes, suggestionRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_URL}/mood/history`, { withCredentials: true }),
+          axios.get(`${import.meta.env.VITE_API_URL}/mood/today`, { withCredentials: true }),
+          axios.get(`${import.meta.env.VITE_API_URL}/mood/suggestions`, { withCredentials: true })
+        ]);
+
+        if (historyRes.data.success) {
+          setMoodHistory(historyRes.data.moodHistory);
+        }
+
+        if (todayRes.data.success && todayRes.data.moodEntry) {
+          setTodayMood(todayRes.data.moodEntry);
+        }
+
+        if (suggestionRes.data.success) {
+          setSuggestions(suggestionRes.data.suggestions);
+        }
+
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    } else {
+      // Guest Mode
+      const guestHistory = getGuestMoodHistory();
+      setMoodHistory(guestHistory);
+
+      if (guestHistory.length > 0) {
+        setTodayMood(guestHistory[guestHistory.length - 1]);
+      }
+
+      setSuggestions([
+        { _id: '1', title: 'Deep Breathing', duration: '5', description: 'Take a moment to center yourself.', content: 'Box breathing technique.' },
+        { _id: '2', title: 'Gratitude Journal', duration: '3', description: 'Write down 3 things you are grateful for.', content: 'Positive reflection.' }
+      ]);
     }
-
-    // Generate some mock suggestions based on history or random
-    setSuggestions([
-      { _id: '1', title: 'Deep Breathing', duration: '5', description: 'Take a moment to center yourself.', content: 'Box breathing technique.' },
-      { _id: '2', title: 'Gratitude Journal', duration: '3', description: 'Write down 3 things you are grateful for.', content: 'Positive reflection.' }
-    ]);
 
     setIsLoading(false);
   };
 
-  const handleSubmitMood = (e) => {
+  const handleSubmitMood = async (e) => {
     e.preventDefault();
 
     const moodData = {
       mood,
       emotion,
       stressLevel: parseInt(stressLevel),
-      description
+      description,
+      userId: user?.id || null
     };
 
-    saveGuestMoodEntry(moodData);
+    if (isAuthenticated) {
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/mood/entry`, {
+          mood,
+          emotion,
+          stressLevel: parseInt(stressLevel),
+          description,
+          triggers: [], // Add fields if form expands
+          activities: []
+        }, { withCredentials: true });
+      } catch (error) {
+        console.error('Failed to save mood:', error);
+        // Optionally show error toast
+      }
+    } else {
+      saveGuestMoodEntry(moodData);
+    }
 
     setMood('');
     setEmotion('');
     setStressLevel(5);
     setDescription('');
 
-    loadDashboardData();
+    if (isAuthenticated) {
+      // Re-fetch to update charts and suggestions immediately
+      loadDashboardData();
+    } else {
+      loadDashboardData();
+    }
   };
 
   const moodDistribution = moodHistory.reduce((acc, entry) => {
@@ -77,31 +129,44 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
+    <div className="min-h-screen bg-slate-50 py-12">
       <Container>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex items-center justify-between"
+          className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
         >
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Wellness Hub</h1>
-            <p className="text-gray-600">
-              Track your mood and emotional well-being
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white shadow-lg">
+              <User size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                Welcome back, {user?.firstName || 'Friend'}
+              </h1>
+              <p className="text-slate-500 font-medium">
+                {isAuthenticated ? "You're logged in and synchronized." : "Guest Mode - Your data is stored locally."}
+              </p>
+            </div>
           </div>
 
-          {/* Back to Home Button */}
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Button>
-
+          <div className="flex gap-3">
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="secondary" className="gap-2 border-amber-200 text-amber-700 bg-amber-50">
+                  <ShieldCheck size={18} /> Admin Panel
+                </Button>
+              </Link>
+            )}
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-slate-600"
+            >
+              <ArrowLeft className="w-4 h-4" /> Home
+            </Button>
+          </div>
         </motion.div>
 
         {/* Stats Cards */}
