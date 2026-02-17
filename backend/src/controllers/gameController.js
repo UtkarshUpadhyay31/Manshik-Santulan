@@ -2,6 +2,53 @@
 import mongoose from 'mongoose';
 import GameScore from '../models/GameScore.js';
 import EmotionBalanceScore from '../models/EmotionBalanceScore.js';
+import UserStreak from '../models/UserStreak.js';
+
+/**
+ * Helper function to increment user streak
+ */
+const incrementUserStreak = async (userId) => {
+    try {
+        let streak = await UserStreak.findOne({ userId });
+
+        if (!streak) {
+            streak = new UserStreak({ userId });
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (streak.lastActiveDate) {
+            const lastActive = new Date(streak.lastActiveDate);
+            lastActive.setHours(0, 0, 0, 0);
+
+            const daysDiff = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
+
+            if (daysDiff === 0) {
+                return; // Already counted today
+            } else if (daysDiff === 1) {
+                streak.currentStreak += 1;
+            } else {
+                streak.currentStreak = 1;
+            }
+        } else {
+            streak.currentStreak = 1;
+        }
+
+        if (streak.currentStreak > streak.longestStreak) {
+            streak.longestStreak = streak.currentStreak;
+        }
+
+        streak.lastActiveDate = today;
+        streak.totalActiveDays += 1;
+        streak.streakHistory.shift();
+        streak.streakHistory.push(true);
+
+        await streak.save();
+    } catch (error) {
+        console.error('Error incrementing streak:', error);
+    }
+};
 
 /**
  * Submit a new game score
@@ -24,6 +71,9 @@ export const submitScore = async (req, res) => {
         });
 
         await newScore.save();
+
+        // Increment user streak
+        await incrementUserStreak(req.user.userId);
 
         res.status(201).json({
             success: true,
@@ -172,6 +222,9 @@ export const submitEmotionBalanceScore = async (req, res) => {
         }
 
         await userRecord.save();
+
+        // Increment user streak
+        await incrementUserStreak(userId);
 
         res.status(200).json({
             success: true,

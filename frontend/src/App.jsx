@@ -11,6 +11,7 @@ import MentorList from './pages/MentorList';
 import TherapistList from './pages/TherapistList';
 import ProfessionalProfile from './pages/ProfessionalProfile';
 import Navbar from './components/Navbar';
+import StreakBanner from './components/StreakBanner';
 import SessionPage from './pages/SessionPage';
 import GamesPage from './pages/GamesPage';
 import FocusGame from './components/games/FocusGame';
@@ -39,10 +40,18 @@ const AppContent = () => {
   // Show navbar only on specific pages (not dashboard, not auth, not admin, not active games)
   const showNavbar = !['/dashboard'].includes(location.pathname) && !isAdminPath && !isAuthPath && !isGamePath;
 
+  // Show streak banner on all authenticated pages except auth and games
+  const showStreakBanner = !isAdminPath && !isAuthPath && !isGamePath;
+
   return (
     <>
       <Notification />
       {showNavbar && <Navbar />}
+      {showStreakBanner && (
+        <div className={showNavbar ? 'mt-20' : ''}>
+          <StreakBanner />
+        </div>
+      )}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />

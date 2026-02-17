@@ -17,6 +17,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import professionalRoutes from './routes/professionalRoutes.js';
 import aiCoachRoutes from './routes/aiCoachRoutes.js';
 import gameRoutes from './routes/gameRoutes.js';
+import streakRoutes from './routes/streakRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -124,6 +125,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/professionals', professionalRoutes);
 app.use('/api/ai-coach', aiCoachRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/streak', streakRoutes);
 
 // 404 handler
 app.use((req, res) => {
