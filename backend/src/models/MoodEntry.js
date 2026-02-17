@@ -11,7 +11,7 @@ const MoodEntrySchema = new mongoose.Schema({
   },
   mood: {
     type: String,
-    enum: ['very_sad', 'sad', 'neutral', 'happy', 'very_happy'],
+    enum: ['very_sad', 'sad', 'neutral', 'happy', 'very_happy', 'excited', 'content', 'tired'],
     required: [true, 'Mood is required']
   },
   emotion: {
@@ -44,7 +44,7 @@ const MoodEntrySchema = new mongoose.Schema({
   timeOfDay: {
     type: String,
     enum: ['morning', 'afternoon', 'evening', 'night'],
-    default: function() {
+    default: function () {
       const hour = new Date().getHours();
       if (hour < 12) return 'morning';
       if (hour < 17) return 'afternoon';

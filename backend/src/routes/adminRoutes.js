@@ -11,6 +11,7 @@ import {
   updateAIConfig,
   getAIAnalytics,
   getAllProfessionals,
+  createProfessional,
   toggleProfessionalStatus,
   deleteProfessional,
   getAllBlogs,
@@ -44,6 +45,7 @@ router.get('/ai-analytics', getAIAnalytics);
 
 // Professional management
 router.get('/professionals', getAllProfessionals);
+router.post('/professionals', createProfessional);
 router.put('/professionals/:type/:id', toggleProfessionalStatus);
 router.delete('/professionals/:type/:id', deleteProfessional);
 

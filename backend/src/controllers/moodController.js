@@ -11,9 +11,9 @@ export const createMoodEntry = async (req, res) => {
 
     // Validation
     if (!mood || !emotion || !stressLevel) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Mood, emotion, and stress level are required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Mood, emotion, and stress level are required'
       });
     }
 
@@ -39,9 +39,9 @@ export const createMoodEntry = async (req, res) => {
     });
   } catch (error) {
     console.error('Create mood entry error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error creating mood entry' 
+    res.status(500).json({
+      success: false,
+      message: 'Error creating mood entry'
     });
   }
 };
@@ -54,9 +54,9 @@ export const analyzeEmotion = async (req, res) => {
     const { text } = req.body;
 
     if (!text || text.trim().length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Text is required for emotion analysis' 
+      return res.status(400).json({
+        success: false,
+        message: 'Text is required for emotion analysis'
       });
     }
 
@@ -70,9 +70,9 @@ export const analyzeEmotion = async (req, res) => {
     });
   } catch (error) {
     console.error('Analyze emotion error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error analyzing emotion' 
+    res.status(500).json({
+      success: false,
+      message: 'Error analyzing emotion'
     });
   }
 };
@@ -82,13 +82,19 @@ export const analyzeEmotion = async (req, res) => {
  */
 export const getMoodHistory = async (req, res) => {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const { limit, fullHistory } = req.query;
+    let query = { userId: req.user.userId };
 
-    const moodHistory = await MoodEntry.find({
-      userId: req.user.userId,
-      timestamp: { $gte: thirtyDaysAgo }
-    }).sort({ timestamp: -1 });
+    // If not full history AND no specific limit, default to last 30 days
+    if (!fullHistory && !limit) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      query.timestamp = { $gte: thirtyDaysAgo };
+    }
+
+    const moodHistory = await MoodEntry.find(query)
+      .sort({ timestamp: -1 })
+      .limit(fullHistory ? 0 : (parseInt(limit) || 30));
 
     // Calculate mood statistics
     const stats = calculateMoodStats(moodHistory);
@@ -100,9 +106,9 @@ export const getMoodHistory = async (req, res) => {
     });
   } catch (error) {
     console.error('Get mood history error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching mood history' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching mood history'
     });
   }
 };
@@ -114,7 +120,7 @@ export const getTodayMood = async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -130,9 +136,9 @@ export const getTodayMood = async (req, res) => {
     });
   } catch (error) {
     console.error('Get today mood error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching today mood' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching today mood'
     });
   }
 };
@@ -143,7 +149,7 @@ export const getTodayMood = async (req, res) => {
 export const generateAISuggestions = async (userId, mood, stressLevel) => {
   try {
     const timeContext = getTimeContext();
-    
+
     // Create suggestions based on mood and stress level
     const suggestions = [];
 
@@ -216,9 +222,9 @@ export const getAISuggestions = async (req, res) => {
     });
   } catch (error) {
     console.error('Get AI suggestions error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching suggestions' 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching suggestions'
     });
   }
 };
@@ -242,9 +248,9 @@ export const completeSuggestion = async (req, res) => {
     );
 
     if (!suggestion) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Suggestion not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Suggestion not found'
       });
     }
 
@@ -255,9 +261,9 @@ export const completeSuggestion = async (req, res) => {
     });
   } catch (error) {
     console.error('Complete suggestion error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error updating suggestion' 
+    res.status(500).json({
+      success: false,
+      message: 'Error updating suggestion'
     });
   }
 };
@@ -303,4 +309,27 @@ const calculateMoodStats = (moodHistory) => {
     dominantMood,
     dominantEmotion
   };
+};
+
+/**
+ * Get Work History (Completed Suggestions)
+ */
+export const getWorkHistory = async (req, res) => {
+  try {
+    const workHistory = await AISuggestion.find({
+      userId: req.user.userId,
+      isCompleted: true
+    }).sort({ completedAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      workHistory
+    });
+  } catch (error) {
+    console.error('Get work history error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching work history'
+    });
+  }
 };

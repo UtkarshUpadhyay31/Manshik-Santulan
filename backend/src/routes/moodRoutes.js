@@ -5,7 +5,8 @@ import {
   getMoodHistory,
   getTodayMood,
   getAISuggestions,
-  completeSuggestion
+  completeSuggestion,
+  getWorkHistory
 } from '../controllers/moodController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -18,6 +19,7 @@ router.use(authMiddleware);
 router.post('/entry', createMoodEntry);
 router.get('/today', getTodayMood);
 router.get('/history', getMoodHistory);
+router.get('/work-history', getWorkHistory);
 
 // Emotion analysis routes
 router.post('/analyze', analyzeEmotion);

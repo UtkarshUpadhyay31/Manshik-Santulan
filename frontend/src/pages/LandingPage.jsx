@@ -360,6 +360,110 @@ const LandingPage = () => {
           </Container>
         </section>
 
+        {/* Mental Wellness Games Section */}
+        <section className="py-32 relative bg-gradient-to-b from-white/50 to-transparent">
+          <Container>
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-100 text-purple-700 text-sm font-medium mb-6">
+                <Brain size={16} />
+                Interactive Wellness
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Mental Wellness Games</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Engage your mind with science-backed games designed to reduce stress, improve focus, and boost your mood.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {[
+                {
+                  title: "Focus Tap",
+                  desc: "Test your reflexes and sharpen your concentration",
+                  icon: "🎯",
+                  color: "amber",
+                  path: "/games/focus",
+                  time: "60 sec",
+                  styles: { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200' }
+                },
+                {
+                  title: "Memory Flip",
+                  desc: "Challenge your memory with matching pairs",
+                  icon: "🧠",
+                  color: "purple",
+                  path: "/games/memory",
+                  time: "5 min",
+                  styles: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200' }
+                },
+                {
+                  title: "Emotion Balance Puzzle",
+                  desc: "Balance your thoughts on a scale. Train emotional stability.",
+                  icon: "⚖️",
+                  color: "purple",
+                  path: "/games/breathing",
+                  time: "90 sec",
+                  styles: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200' }
+                },
+                {
+                  title: "Mood Catcher",
+                  desc: "Catch positive vibes and boost your spirits",
+                  icon: "😊",
+                  color: "green",
+                  path: "/games/mood",
+                  time: "60 sec",
+                  styles: { bg: 'bg-green-50', text: 'text-green-600', border: 'border-green-200' }
+                }
+              ].map((game, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="group"
+                >
+                  <div className={`bg-white rounded-3xl p-8 h-full border-2 ${game.styles.border} shadow-lg hover:shadow-2xl transition-all duration-300 relative overflow-hidden`}>
+                    <div className={`absolute top-0 right-0 w-32 h-32 ${game.styles.bg} rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity`} />
+
+                    <div className="relative z-10">
+                      <div className="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                        {game.icon}
+                      </div>
+
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold text-slate-900">{game.title}</h3>
+                        <span className={`text-xs font-bold px-3 py-1 ${game.styles.bg} rounded-full ${game.styles.text}`}>
+                          {game.time}
+                        </span>
+                      </div>
+
+                      <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                        {game.desc}
+                      </p>
+
+                      <Button
+                        onClick={() => navigate(game.path)}
+                        variant="secondary"
+                        className={`w-full justify-center group-hover:bg-gradient-to-r group-hover:from-${game.color}-500 group-hover:to-${game.color}-600 group-hover:text-white group-hover:border-transparent transition-all`}
+                      >
+                        Play Now
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link to="/games">
+                <Button
+                  size="lg"
+                  className="rounded-full px-12 py-6 text-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all group"
+                >
+                  Explore All Games
+                  <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
+          </Container>
+        </section>
+
         {/* Insight Feature - Immersive */}
         <section className="py-24">
           <Container>

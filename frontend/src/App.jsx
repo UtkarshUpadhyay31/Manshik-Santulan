@@ -12,6 +12,11 @@ import TherapistList from './pages/TherapistList';
 import ProfessionalProfile from './pages/ProfessionalProfile';
 import Navbar from './components/Navbar';
 import SessionPage from './pages/SessionPage';
+import GamesPage from './pages/GamesPage';
+import FocusGame from './components/games/FocusGame';
+import MemoryGame from './components/games/MemoryGame';
+import EmotionBalanceGame from './components/games/EmotionBalanceGame';
+import MoodCatcherGame from './components/games/MoodCatcherGame';
 
 // Auth Pages
 import LoginPage from './pages/LoginPage';
@@ -29,9 +34,10 @@ const AppContent = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
   const isAuthPath = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+  const isGamePath = location.pathname.startsWith('/games/');
 
-  // Show navbar only on specific pages (not dashboard, not auth, not admin)
-  const showNavbar = !['/dashboard'].includes(location.pathname) && !isAdminPath && !isAuthPath;
+  // Show navbar only on specific pages (not dashboard, not auth, not admin, not active games)
+  const showNavbar = !['/dashboard'].includes(location.pathname) && !isAdminPath && !isAuthPath && !isGamePath;
 
   return (
     <>
@@ -62,6 +68,31 @@ const AppContent = () => {
         <Route path="/therapists" element={
           <ProtectedRoute>
             <TherapistList />
+          </ProtectedRoute>
+        } />
+        <Route path="/games" element={
+          <ProtectedRoute>
+            <GamesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/games/focus" element={
+          <ProtectedRoute>
+            <FocusGame />
+          </ProtectedRoute>
+        } />
+        <Route path="/games/memory" element={
+          <ProtectedRoute>
+            <MemoryGame />
+          </ProtectedRoute>
+        } />
+        <Route path="/games/breathing" element={
+          <ProtectedRoute>
+            <EmotionBalanceGame />
+          </ProtectedRoute>
+        } />
+        <Route path="/games/mood" element={
+          <ProtectedRoute>
+            <MoodCatcherGame />
           </ProtectedRoute>
         } />
         <Route path="/professional/:id" element={

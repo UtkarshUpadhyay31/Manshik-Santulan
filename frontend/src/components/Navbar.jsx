@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle, LogOut, ShieldCheck, Brain } from 'lucide-react';
 import { Button, Container } from './UI';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,6 +26,7 @@ const Navbar = () => {
         { label: 'Home', path: '/', icon: Home },
         { label: 'Mentors', path: '/mentors', icon: Users },
         { label: 'Therapists', path: '/therapists', icon: Heart },
+        { label: 'Games', path: '/games', icon: Brain },
         { label: 'Help Now', path: '/help', icon: HelpCircle },
     ];
 

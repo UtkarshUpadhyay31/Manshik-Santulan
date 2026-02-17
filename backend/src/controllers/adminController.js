@@ -27,6 +27,28 @@ export const getAllProfessionals = async (req, res) => {
 };
 
 /**
+ * Create Professional (Mentor or Doctor)
+ */
+export const createProfessional = async (req, res) => {
+  try {
+    const { type, ...data } = req.body;
+
+    if (type === 'mentor') {
+      const mentor = await Mentor.create(data);
+      return res.status(201).json({ success: true, professional: mentor });
+    } else if (type === 'doctor') {
+      const doctor = await Doctor.create(data);
+      return res.status(201).json({ success: true, professional: doctor });
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid professional type' });
+    }
+  } catch (error) {
+    console.error('Create professional error:', error);
+    res.status(500).json({ success: false, message: 'Error creating professional' });
+  }
+};
+
+/**
  * Verify Professional
  */
 export const toggleProfessionalStatus = async (req, res) => {

@@ -16,6 +16,7 @@ import moodRoutes from './routes/moodRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import professionalRoutes from './routes/professionalRoutes.js';
 import aiCoachRoutes from './routes/aiCoachRoutes.js';
+import gameRoutes from './routes/gameRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -122,6 +123,7 @@ app.use('/api/mood', moodRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/professionals', professionalRoutes);
 app.use('/api/ai-coach', aiCoachRoutes);
+app.use('/api/games', gameRoutes);
 
 // 404 handler
 app.use((req, res) => {

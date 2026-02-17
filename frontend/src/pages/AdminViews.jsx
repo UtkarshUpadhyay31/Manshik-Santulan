@@ -18,7 +18,11 @@ import {
     Loader2,
     ExternalLink,
     Ban,
-    ArrowRight
+    ArrowRight,
+    Brain,
+    Zap,
+    Wind,
+    Smile
 } from 'lucide-react';
 import { Button, Card } from '../components/UI';
 import api from '../services/api';
@@ -177,6 +181,56 @@ export const AdminMentors = () => {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Modal & Form State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        type: 'mentor',
+        name: '',
+        photo: '',
+        category: 'Life',
+        qualification: '',
+        specialization: '',
+        experience: 0,
+        expertise: '',
+        therapyType: ''
+    });
+
+    const handleCreateProfessional = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                ...formData,
+                expertise: formData.type === 'mentor' && formData.expertise ? formData.expertise.split(',').map(s => s.trim()) : undefined,
+                therapyType: formData.type === 'doctor' && formData.therapyType ? formData.therapyType.split(',').map(s => s.trim()) : undefined
+            };
+
+            const response = await api.post('/admin/professionals', payload);
+            if (response.data.success) {
+                if (formData.type === 'mentor') {
+                    setMentors([response.data.professional, ...mentors]);
+                } else {
+                    setDoctors([response.data.professional, ...doctors]);
+                }
+                setIsModalOpen(false);
+                setFormData({
+                    type: 'mentor',
+                    name: '',
+                    photo: '',
+                    category: 'Life',
+                    qualification: '',
+                    specialization: '',
+                    experience: 0,
+                    expertise: '',
+                    therapyType: ''
+                });
+            }
+        } catch (error) {
+            console.error('Error creating professional:', error);
+            alert('Failed to create professional');
+        }
+    };
+
+
     useEffect(() => {
         fetchProfessionals();
     }, []);
@@ -220,10 +274,142 @@ export const AdminMentors = () => {
                     <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Expert Verification</h2>
                     <p className="text-slate-500 font-medium">Coordinate and authorize peer mentors & clinical experts.</p>
                 </div>
-                <Button variant="primary" size="sm" className="gap-2 bg-slate-900 shadow-xl shadow-slate-200">
+                <Button
+                    variant="primary"
+                    size="sm"
+                    className="gap-2 bg-slate-900 shadow-xl shadow-slate-200"
+                    onClick={() => setIsModalOpen(true)}
+                >
                     <Plus size={18} /> Onboard Expert
                 </Button>
             </div>
+
+            {/* Create Professional Modal */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+                        >
+                            <h3 className="text-2xl font-bold mb-6">Onboard New Expert</h3>
+                            <form onSubmit={handleCreateProfessional} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Type</label>
+                                    <select
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.type}
+                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                    >
+                                        <option value="mentor">Peer Mentor</option>
+                                        <option value="doctor">Clinical Expert</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Photo URL</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.photo}
+                                        onChange={e => setFormData({ ...formData, photo: e.target.value })}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Experience (Years)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.experience}
+                                        onChange={e => setFormData({ ...formData, experience: Number(e.target.value) })}
+                                    />
+                                </div>
+
+                                {formData.type === 'mentor' ? (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Category</label>
+                                            <select
+                                                className="w-full p-2 border rounded-xl"
+                                                value={formData.category}
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                            >
+                                                <option value="Career">Career</option>
+                                                <option value="Life">Life</option>
+                                                <option value="Relationship">Relationship</option>
+                                                <option value="Mental Wellness">Mental Wellness</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Expertise (Comma separated)</label>
+                                            <input
+                                                type="text"
+                                                className="w-full p-2 border rounded-xl"
+                                                value={formData.expertise}
+                                                onChange={e => setFormData({ ...formData, expertise: e.target.value })}
+                                                placeholder="Stress, anxiety, resume building"
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Qualification</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className="w-full p-2 border rounded-xl"
+                                                value={formData.qualification}
+                                                onChange={e => setFormData({ ...formData, qualification: e.target.value })}
+                                                placeholder="MD, PhD, etc."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Specialization</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className="w-full p-2 border rounded-xl"
+                                                value={formData.specialization}
+                                                onChange={e => setFormData({ ...formData, specialization: e.target.value })}
+                                                placeholder="Clinical Psychologist"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Therapy Types (Comma separated)</label>
+                                            <input
+                                                type="text"
+                                                className="w-full p-2 border rounded-xl"
+                                                value={formData.therapyType}
+                                                onChange={e => setFormData({ ...formData, therapyType: e.target.value })}
+                                                placeholder="CBT, DBT, etc."
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                    <Button type="submit" variant="primary">Create</Button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
                 {/* Mentors Table */}
@@ -327,6 +513,40 @@ export const AdminBlogs = () => {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Blog Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        title: '',
+        content: '',
+        author: 'Admin',
+        category: 'Mental Health',
+        image: '',
+        readTime: '5 min'
+    });
+
+    const handleCreateBlog = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.post('/admin/blogs', formData);
+            if (response.data.success) {
+                setBlogs([response.data.blog, ...blogs]);
+                setIsModalOpen(false);
+                setFormData({
+                    title: '',
+                    content: '',
+                    author: 'Admin',
+                    category: 'Mental Health',
+                    image: '',
+                    readTime: '5 min'
+                });
+            }
+        } catch (error) {
+            console.error('Error creating blog:', error);
+            alert('Failed to create blog');
+        }
+    };
+
+
     useEffect(() => {
         fetchBlogs();
     }, []);
@@ -376,10 +596,91 @@ export const AdminBlogs = () => {
                     <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Curation Studio</h2>
                     <p className="text-slate-500 font-medium">Engineer and showcase impactful mental health literature.</p>
                 </div>
-                <Button variant="primary" size="sm" className="gap-2 bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-100">
+                <Button
+                    variant="primary"
+                    size="sm"
+                    className="gap-2 bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-100"
+                    onClick={() => setIsModalOpen(true)}
+                >
                     <Plus size={18} /> New Publication
                 </Button>
             </div>
+
+            {/* Create Blog Modal */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+                        >
+                            <h3 className="text-2xl font-bold mb-6">Publish New Article</h3>
+                            <form onSubmit={handleCreateBlog} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Title</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.title}
+                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Author</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.author}
+                                        onChange={e => setFormData({ ...formData, author: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Category</label>
+                                    <select
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.category}
+                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                    >
+                                        <option value="Mental Health">Mental Health</option>
+                                        <option value="Self-Care">Self-Care</option>
+                                        <option value="Resilience">Resilience</option>
+                                        <option value="Mindfulness">Mindfulness</option>
+                                        <option value="Stress Management">Stress Management</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Image URL</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 border rounded-xl"
+                                        value={formData.image}
+                                        onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Content</label>
+                                    <textarea
+                                        required
+                                        className="w-full p-2 border rounded-xl"
+                                        rows={5}
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                    <Button type="submit" variant="primary">Publish</Button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {blogs.map(blog => (
@@ -446,10 +747,66 @@ export const AdminBlogs = () => {
 
 // --- Reports View ---
 export const AdminReports = () => {
+    const [gameAnalytics, setGameAnalytics] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchGameAnalytics();
+    }, []);
+
+    const fetchGameAnalytics = async () => {
+        try {
+            const response = await api.get('/games/admin/analytics');
+            if (response.data.success) {
+                setGameAnalytics(response.data.analytics);
+            }
+        } catch (error) {
+            console.error('Error fetching game analytics:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Game Analytics Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                    { id: 'focus', title: 'Focus Tap', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
+                    { id: 'memory', title: 'Memory Flip', icon: Brain, color: 'text-purple-500', bg: 'bg-purple-50' },
+                    { id: 'breathing', title: 'Rhythmic Breathing', icon: Wind, color: 'text-blue-500', bg: 'bg-blue-50' },
+                    { id: 'mood', title: 'Mood Catcher', icon: Smile, color: 'text-green-500', bg: 'bg-green-50' }
+                ].map((game) => {
+                    const stats = gameAnalytics.find(a => a._id === game.id) || { totalGlobalPlays: 0, avgScore: 0 };
+                    const Icon = game.icon;
+                    return (
+                        <Card key={game.id} className="relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className={`p-4 rounded-2xl ${game.bg} ${game.color}`}>
+                                    <Icon size={28} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900">{game.title}</h4>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Performance</p>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">Total Plays</span>
+                                    <span className="text-lg font-bold text-slate-900">{stats.totalGlobalPlays}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-500">Avg. Score</span>
+                                    <span className="text-lg font-bold text-indigo-600">{Math.round(stats.avgScore)}</span>
+                                </div>
+                            </div>
+                        </Card>
+                    );
+                })}
+            </div>
+
             <Card className="relative overflow-hidden bg-white/60 backdrop-blur-3xl rounded-[3.5rem] border border-white/40 shadow-2xl p-12 md:p-20 text-center group">
-                {/* Visual Accent */}
+
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-100/30 rounded-full blur-[100px] -mr-32 -mt-32 transition-all group-hover:bg-purple-200/40" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-100/30 rounded-full blur-[100px] -ml-32 -mb-32 transition-all group-hover:bg-blue-200/40" />
 
