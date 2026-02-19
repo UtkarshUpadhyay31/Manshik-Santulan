@@ -1,4 +1,3 @@
-// Brain integrated - AI Coach Ready
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -8,9 +7,8 @@ import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { connectDB } from './utils/db.js';
-import { errorHandler, requestLogger } from './middleware/auth.js';
+import { errorHandler } from './middleware/auth.js';
 
-// Routes
 import authRoutes from './routes/authRoutes.js';
 import moodRoutes from './routes/moodRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -19,68 +17,76 @@ import aiCoachRoutes from './routes/aiCoachRoutes.js';
 import gameRoutes from './routes/gameRoutes.js';
 import streakRoutes from './routes/streakRoutes.js';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
+
+const PORT = process.env.PORT || 5000;
+
+const staticAllowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+].filter(Boolean);
+
+const devOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (staticAllowedOrigins.includes(origin)) return true;
+  return devOriginPattern.test(origin);
+};
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'));
+  },
+  credentials: true
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: [process.env.FRONTEND_URL || 'http://localhost:5173', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin(origin, callback) {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error('Socket origin blocked by CORS policy.'));
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }
 });
 
-const PORT = process.env.PORT || 5000;
-
-// ============ Security Middleware ============
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: false
 }));
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes'
   }
 });
 
-// Apply rate limiting to all requests
 app.use('/api', limiter);
-
-// Cors Configuration
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
-  'http://localhost:5173',
-  'http://127.0.0.1:5173'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} | Origin: ${req.headers.origin}`);
   next();
 });
 
-// ============ Socket.io Setup ============
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
@@ -90,7 +96,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send-message', (data) => {
-    // data: { chatId, senderId, senderName, text }
     const { chatId, ...messageData } = data;
     io.to(chatId).emit('receive-message', {
       ...messageData,
@@ -103,10 +108,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// ============ Routes ============
 app.get('/', (req, res) => {
   res.json({
-    message: '✓ Manshik Santulan API Server is Running',
+    message: 'Manshik Santulan API Server is Running',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
@@ -118,7 +122,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/mood', moodRoutes);
 app.use('/api/admin', adminRoutes);
@@ -127,7 +130,6 @@ app.use('/api/ai-coach', aiCoachRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/streak', streakRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -135,25 +137,21 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
 app.use(errorHandler);
 
-// ============ Database Connection & Server Start ============
 const startServer = async () => {
   try {
     try {
       await connectDB();
+      console.log('MongoDB connected');
     } catch (dbError) {
-      console.warn('\n⚠ MongoDB connection failed:', dbError.message);
-      console.warn('⚠ Running in TEST MODE - Database features disabled\n');
+      console.warn('MongoDB connection failed:', dbError.message);
+      console.warn('Running in test mode without database');
     }
 
     httpServer.listen(PORT, () => {
-      console.log(`\n╔════════════════════════════════════════════╗`);
-      console.log(`║ 🧠 MANSHIK SANTULAN API SERVER RUNNING     ║`);
-      console.log(`║ Port: ${PORT.toString().padEnd(39)} ║`);
-      console.log(`║ Environment: ${process.env.NODE_ENV?.toUpperCase().padEnd(29)} ║`);
-      console.log(`╚════════════════════════════════════════════╝\n`);
+      console.log(`API server running on port ${PORT}`);
+      console.log(`Environment: ${(process.env.NODE_ENV || 'development').toUpperCase()}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -161,9 +159,8 @@ const startServer = async () => {
   }
 };
 
-// Handle graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n\n✓ Shutting down gracefully...');
+  console.log('Shutting down gracefully...');
   process.exit(0);
 });
 

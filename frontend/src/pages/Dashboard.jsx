@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile } from 'lucide-react';
+import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile, UserPlus, Link2, Send, Mail, Phone, AlertTriangle } from 'lucide-react';
 import { Card, Container, Button } from '../components/UI';
+import AIEmotionMirror from '../components/AIEmotionMirror';
 import { useMoodStore } from '../context/store';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -24,11 +25,28 @@ const Dashboard = () => {
   const [stressLevel, setStressLevel] = useState(5);
   const [description, setDescription] = useState('');
   const [activeTab, setActiveTab] = useState('moods'); // 'moods' or 'activities'
+  const [trustedContact, setTrustedContact] = useState({
+    name: '',
+    relation: '',
+    email: '',
+    phone: '',
+    preferred: 'email'
+  });
+  const [trustedSaved, setTrustedSaved] = useState(false);
+  const [shareStatus, setShareStatus] = useState('');
+  const [alertSettings, setAlertSettings] = useState({
+    lastAlertedAt: null
+  });
   // COLORS for charts
   const COLORS = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#02e6ffff'];
+  const TRUSTED_CONTACT_KEY = 'trusted_contact_v1';
+  const TRUSTED_ALERT_KEY = 'trusted_alert_settings_v1';
+  const HIGH_STRESS_THRESHOLD = 7;
+  const REQUIRED_DAYS = 7;
 
   useEffect(() => {
     loadDashboardData();
+    loadTrustedContact();
   }, [user]);
 
   const loadDashboardData = async () => {
@@ -85,6 +103,82 @@ const Dashboard = () => {
     setIsLoading(false);
   };
 
+  const loadTrustedContact = () => {
+    try {
+      const stored = localStorage.getItem(TRUSTED_CONTACT_KEY);
+      if (stored) {
+        setTrustedContact(JSON.parse(stored));
+      }
+      const storedSettings = localStorage.getItem(TRUSTED_ALERT_KEY);
+      if (storedSettings) {
+        setAlertSettings(JSON.parse(storedSettings));
+      }
+    } catch (error) {
+      console.error('Failed to load trusted contact:', error);
+    }
+  };
+
+  const persistTrustedContact = (nextContact) => {
+    setTrustedContact(nextContact);
+    setTrustedSaved(true);
+    setShareStatus('');
+    try {
+      localStorage.setItem(TRUSTED_CONTACT_KEY, JSON.stringify(nextContact));
+    } catch (error) {
+      console.error('Failed to save trusted contact:', error);
+    }
+  };
+
+  const persistAlertSettings = (nextSettings) => {
+    setAlertSettings(nextSettings);
+    try {
+      localStorage.setItem(TRUSTED_ALERT_KEY, JSON.stringify(nextSettings));
+    } catch (error) {
+      console.error('Failed to save alert settings:', error);
+    }
+  };
+
+  const buildAlertMessage = () => {
+    const name = trustedContact.name || 'there';
+    const userName = user?.firstName || 'your friend';
+    const siteLink = `${window.location.origin}/help`;
+    return `Hi ${name}, ${userName} added you as a trusted person on Manshik Santulan. If you receive this, please check in on them. Help page: ${siteLink}`;
+  };
+
+  const handleShareLink = async () => {
+    const message = buildAlertMessage();
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(message);
+        setShareStatus('Invite message copied.');
+      } catch (error) {
+        console.error('Failed to copy invite message:', error);
+        setShareStatus('Copy failed. You can manually copy the message below.');
+      }
+    } else {
+      window.prompt('Copy this invite message:', message);
+    }
+  };
+
+  const handleSendAlert = () => {
+    const message = buildAlertMessage();
+    const subject = encodeURIComponent('Trusted Person Alert');
+    const body = encodeURIComponent(message);
+    if (trustedContact.preferred === 'sms' && trustedContact.phone) {
+      window.location.href = `sms:${trustedContact.phone}?body=${body}`;
+    } else if (trustedContact.email) {
+      window.location.href = `mailto:${trustedContact.email}?subject=${subject}&body=${body}`;
+    } else if (trustedContact.phone) {
+      window.location.href = `sms:${trustedContact.phone}?body=${body}`;
+    }
+
+    const nextSettings = {
+      ...alertSettings,
+      lastAlertedAt: new Date().toISOString()
+    };
+    persistAlertSettings(nextSettings);
+  };
+
   const handleSubmitMood = async (e) => {
     e.preventDefault();
 
@@ -138,6 +232,54 @@ const Dashboard = () => {
     date: new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
     stress: entry.stressLevel
   }));
+
+  const highStressInfo = useMemo(() => {
+    const now = new Date();
+    const start = new Date();
+    start.setDate(now.getDate() - (REQUIRED_DAYS - 1));
+    start.setHours(0, 0, 0, 0);
+
+    const daily = new Map();
+    moodHistory.forEach((entry) => {
+      const timestamp = entry.timestamp || entry.createdAt || entry.updatedAt;
+      const date = new Date(timestamp);
+      if (Number.isNaN(date.getTime())) return;
+      if (date < start) return;
+      const key = date.toISOString().slice(0, 10);
+      const current = daily.get(key) || { sum: 0, count: 0 };
+      const level = Number(entry.stressLevel || 0);
+      current.sum += level;
+      current.count += 1;
+      daily.set(key, current);
+    });
+
+    const averages = [];
+    let missingDays = 0;
+    for (let i = 0; i < REQUIRED_DAYS; i += 1) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      const key = day.toISOString().slice(0, 10);
+      const data = daily.get(key);
+      if (!data) {
+        missingDays += 1;
+        continue;
+      }
+      averages.push(data.sum / data.count);
+    }
+
+    const weekAverage = averages.length > 0
+      ? averages.reduce((sum, value) => sum + value, 0) / averages.length
+      : null;
+    const isHighStressWeek = missingDays === 0 && averages.length === REQUIRED_DAYS && averages.every((value) => value >= HIGH_STRESS_THRESHOLD);
+    const rangeLabel = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+    return {
+      isHighStressWeek,
+      weekAverage,
+      missingDays,
+      rangeLabel
+    };
+  }, [moodHistory]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -326,6 +468,159 @@ const Dashboard = () => {
             )}
           </motion.div>
         </div>
+
+        {/* Trusted Person Alert */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+          <Card>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <UserPlus className="w-6 h-6 text-emerald-600" />
+                Trusted Person Alert
+              </h2>
+              <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold">
+                Personal Safety
+              </span>
+            </div>
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <p className="text-slate-500 text-sm">
+                  Add one trusted person and share an invite message. If your stress stays high for 7 days, you can send an alert quickly.
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Name</label>
+                    <input
+                      type="text"
+                      value={trustedContact.name}
+                      onChange={(e) => persistTrustedContact({ ...trustedContact, name: e.target.value })}
+                      placeholder="Trusted person's name"
+                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Relation</label>
+                    <input
+                      type="text"
+                      value={trustedContact.relation}
+                      onChange={(e) => persistTrustedContact({ ...trustedContact, relation: e.target.value })}
+                      placeholder="Friend, sibling, mentor"
+                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={trustedContact.email}
+                      onChange={(e) => persistTrustedContact({ ...trustedContact, email: e.target.value })}
+                      placeholder="name@email.com"
+                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={trustedContact.phone}
+                      onChange={(e) => persistTrustedContact({ ...trustedContact, phone: e.target.value })}
+                      placeholder="+91 9XXXXXXXXX"
+                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Preferred Alert Method</label>
+                  <select
+                    value={trustedContact.preferred}
+                    onChange={(e) => persistTrustedContact({ ...trustedContact, preferred: e.target.value })}
+                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                  </select>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleShareLink}
+                    className="gap-2"
+                  >
+                    <Link2 size={18} /> Share Invite
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={handleSendAlert}
+                    disabled={!trustedContact.name || (!trustedContact.email && !trustedContact.phone)}
+                    className="gap-2"
+                  >
+                    <Send size={18} />
+                    {highStressInfo.isHighStressWeek ? 'Send Alert Now' : 'Send Test Alert'}
+                  </Button>
+                </div>
+                {trustedSaved && (
+                  <p className="text-xs text-emerald-600">Trusted person saved locally on this device.</p>
+                )}
+                {shareStatus && (
+                  <p className="text-xs text-slate-500">{shareStatus}</p>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div className={`p-4 rounded-xl border ${highStressInfo.isHighStressWeek ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-slate-50'}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <AlertTriangle className={`w-5 h-5 ${highStressInfo.isHighStressWeek ? 'text-red-600' : 'text-slate-400'}`} />
+                    <p className="font-semibold text-slate-900">
+                      {highStressInfo.isHighStressWeek ? 'High stress detected for 7 days' : 'Monitoring stress trends'}
+                    </p>
+                  </div>
+                  <p className="text-sm text-slate-600">
+                    Tracking window: {highStressInfo.rangeLabel}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    {highStressInfo.weekAverage !== null
+                      ? `Average stress: ${highStressInfo.weekAverage.toFixed(1)}/10`
+                      : 'No stress data yet for the last 7 days.'}
+                  </p>
+                  {highStressInfo.missingDays > 0 && (
+                    <p className="text-xs text-slate-500 mt-2">
+                      Missing {highStressInfo.missingDays} day(s) of check-ins in the last week.
+                    </p>
+                  )}
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-white">
+                    <div className="flex items-center gap-2 text-slate-700 font-semibold mb-1">
+                      <Mail size={16} /> Email
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      {trustedContact.email || 'Add an email for alerts.'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-slate-200 bg-white">
+                    <div className="flex items-center gap-2 text-slate-700 font-semibold mb-1">
+                      <Phone size={16} /> SMS
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      {trustedContact.phone || 'Add a phone number for alerts.'}
+                    </p>
+                  </div>
+                </div>
+                {alertSettings.lastAlertedAt && (
+                  <p className="text-xs text-slate-500">
+                    Last alert sent: {new Date(alertSettings.lastAlertedAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* AI Emotional Mirror */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+          <AIEmotionMirror />
+        </motion.div>
 
         {/* Mind Training Section */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
