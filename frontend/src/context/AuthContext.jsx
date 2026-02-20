@@ -1,12 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AuthContext = createContext();
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-// Configure axios for cookies
-axios.defaults.withCredentials = true;
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -17,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const response = await axios.get(`${API_URL}/auth/me`);
+                const response = await api.get('/auth/me');
                 if (response.data.success) {
                     setUser(response.data.user);
                 }
@@ -36,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         setError(null);
         try {
-            const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+            const response = await api.post('/auth/login', { email, password });
             if (response.data.success) {
                 setUser(response.data.user);
                 return { success: true, user: response.data.user };
@@ -56,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (userData) => {
         setError(null);
         try {
-            const response = await axios.post(`${API_URL}/auth/register`, userData);
+            const response = await api.post('/auth/register', userData);
             if (response.data.success) {
                 setUser(response.data.user);
                 return { success: true, user: response.data.user };
@@ -75,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     // Logout handler
     const logout = async () => {
         try {
-            await axios.post(`${API_URL}/auth/logout`);
+            await api.post('/auth/logout');
             setUser(null);
             // Clear any other state if needed
             window.location.href = '/login';

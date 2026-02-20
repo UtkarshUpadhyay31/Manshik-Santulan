@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Button, Card } from '../UI';
 import { ArrowLeft, Play, Square, Volume2, VolumeX, Wind } from 'lucide-react';
 import api from '../../services/api';
-import { useUIStore } from '../../context/store';
-
 const BreathingGame = () => {
     const navigate = useNavigate();
     const [isPlaying, setIsPlaying] = useState(false);
@@ -15,8 +13,6 @@ const BreathingGame = () => {
     const [soundEnabled, setSoundEnabled] = useState(false);
     const [completed, setCompleted] = useState(false);
 
-    // Global coordination
-    const { activeBreathingId, startBreathing, stopBreathing, isCrisisMode } = useUIStore();
     const timerRef = useRef(null);
     const cycleTimerRef = useRef(null);
 
@@ -64,26 +60,6 @@ const BreathingGame = () => {
         };
     }, [isPlaying, completed]);
 
-    // Global Coordination
-    useEffect(() => {
-        if (activeBreathingId && activeBreathingId !== 'breathing-game' && isPlaying) {
-            stopSession();
-        }
-    }, [activeBreathingId, isPlaying]);
-
-    useEffect(() => {
-        if (isCrisisMode && isPlaying) {
-            stopSession();
-        }
-    }, [isCrisisMode, isPlaying]);
-
-    useEffect(() => {
-        if (isPlaying) {
-            startBreathing('breathing-game');
-        } else if (activeBreathingId === 'breathing-game') {
-            stopBreathing('breathing-game');
-        }
-    }, [isPlaying]);
 
     const runBreathingCycle = async () => {
         if (!isPlaying) return;

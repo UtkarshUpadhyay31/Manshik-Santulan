@@ -24,7 +24,7 @@ const SessionPage = () => {
         fetchProfessional();
         initChat();
 
-        const newSocket = io('http://localhost:5000');
+        const newSocket = io(import.meta.env.VITE_API_URL === '/api' ? window.location.origin : 'http://localhost:5000');
         setSocket(newSocket);
 
         return () => newSocket.close();

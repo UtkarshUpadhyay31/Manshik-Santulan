@@ -4,9 +4,9 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
-import LandingPage from './pages/LandingPage';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
-import HelpPage from './pages/HelpPage';
+import Help from './pages/Help';
 import MentorList from './pages/MentorList';
 import TherapistList from './pages/TherapistList';
 import ProfessionalProfile from './pages/ProfessionalProfile';
@@ -54,8 +54,8 @@ const AppContent = () => {
       )}
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/help" element={<HelpPage />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/help" element={<Help />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />

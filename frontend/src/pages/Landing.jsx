@@ -5,18 +5,19 @@ import { Heart, Brain, TrendingUp, ArrowRight, Menu, X, Activity, Users, Star, U
 import { Button, Container, Card } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import BreathingModal from '../components/modals/BreathingModal';
-import MoodCheckModal from '../components/modals/MoodCheckModal';
+import StressBreathingPopup from '../components/StressBreathingPopup';
+import MoodModal from '../components/modals/MoodModal';
 import AICoachModal from '../components/modals/AICoachModal';
 import { saveGuestMoodEntry, getGuestMoodHistory } from '../utils/guestMode';
+import { INTERVENTION_MESSAGE } from '../utils/riskEngine';
 
-const LandingPage = () => {
+const Landing = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [moodModalOpen, setMoodModalOpen] = useState(false);
   const [coachModalOpen, setCoachModalOpen] = useState(false);
-  const [breathingModalOpen, setBreathingModalOpen] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
 
   // State for featured content
   const [featuredMentors, setFeaturedMentors] = useState([]);
@@ -64,7 +65,7 @@ const LandingPage = () => {
   const handleActionClick = (actionId) => {
     switch (actionId) {
       case 'breathing':
-        setBreathingModalOpen(true);
+        setShowBreathing(true);
         break;
       case 'mood':
         setMoodModalOpen(true);
@@ -190,7 +191,7 @@ const LandingPage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-slate-100">
-                <Button onClick={() => handleActionClick('breathing')} className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all">
+                <Button onClick={() => setShowBreathing(true)} className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all">
                   Start Breathing
                 </Button>
                 {isAuthenticated ? (
@@ -509,11 +510,15 @@ const LandingPage = () => {
 
 
       {/* Modals */}
-      <BreathingModal isOpen={breathingModalOpen} onClose={() => setBreathingModalOpen(false)} />
-      <MoodCheckModal isOpen={moodModalOpen} onClose={() => setMoodModalOpen(false)} />
+      <StressBreathingPopup
+        isOpen={showBreathing}
+        onClose={() => setShowBreathing(false)}
+        message={INTERVENTION_MESSAGE}
+      />
+      <MoodModal isOpen={moodModalOpen} onClose={() => setMoodModalOpen(false)} />
       <AICoachModal isOpen={coachModalOpen} onClose={() => setCoachModalOpen(false)} />
     </div>
   );
 };
 
-export default LandingPage;
+export default Landing;

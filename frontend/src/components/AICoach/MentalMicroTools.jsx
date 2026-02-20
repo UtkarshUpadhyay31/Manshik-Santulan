@@ -2,19 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wind, Hand, Eye, Volume2, Ear, Brain, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '../UI';
-import { useUIStore } from '../../context/store';
-
 export const BreathingTool = () => {
     const [phase, setPhase] = useState('Inhale'); // Inhale, Hold, Exhale
     const [counter, setCounter] = useState(4);
 
-    // Global coordination
-    const { activeBreathingId, startBreathing, stopBreathing, isCrisisMode } = useUIStore();
     const intervalRef = useRef(null);
     const [isActive, setIsActive] = useState(true);
 
     useEffect(() => {
-        if (!isActive || isCrisisMode || (activeBreathingId && activeBreathingId !== 'micro-breathing')) {
+        if (!isActive) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
@@ -41,18 +37,7 @@ export const BreathingTool = () => {
                 intervalRef.current = null;
             }
         };
-    }, [phase, isActive, isCrisisMode, activeBreathingId]);
-
-    useEffect(() => {
-        if (isActive) {
-            startBreathing('micro-breathing');
-        } else if (activeBreathingId === 'micro-breathing') {
-            stopBreathing('micro-breathing');
-        }
-        return () => {
-            if (activeBreathingId === 'micro-breathing') stopBreathing('micro-breathing');
-        };
-    }, [isActive]);
+    }, [phase, isActive]);
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-white rounded-3xl border border-blue-100 shadow-sm relative overflow-hidden">

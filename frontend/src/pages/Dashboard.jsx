@@ -6,13 +6,11 @@ import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis
 import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile, UserPlus, Link2, Send, Mail, Phone, AlertTriangle } from 'lucide-react';
 import { Card, Container, Button } from '../components/UI';
 import AIEmotionMirror from '../components/AIEmotionMirror';
-import BreathingModal from '../components/modals/BreathingModal';
+import StressBreathingPopup from '../components/StressBreathingPopup';
 import { useMoodStore } from '../context/store';
 import { useAuth } from '../context/AuthContext';
-import {
-  getGuestMoodHistory,
-  saveGuestMoodEntry,
-} from '../utils/guestMode';
+import { getGuestMoodHistory, saveGuestMoodEntry } from '../utils/guestMode';
+import { shouldTriggerBreathing, INTERVENTION_MESSAGE } from '../utils/riskEngine';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -223,9 +221,9 @@ const Dashboard = () => {
       loadDashboardData();
     }
 
-    // LEVEL 1: High Stress Detection
-    if (parseInt(stressLevel) >= 8 || (mood === 'sad' && parseInt(stressLevel) >= 7)) {
-      setInterventionMsg("I notice your stress level is high. Let's pause for 60 seconds and breathe together.");
+    // Unified Risk Assessment
+    if (shouldTriggerBreathing(mood, parseInt(stressLevel))) {
+      setInterventionMsg(INTERVENTION_MESSAGE);
       setShowIntervention(true);
     }
   };
@@ -776,11 +774,11 @@ const Dashboard = () => {
         </motion.div>
       </Container>
 
-      {/* Intervention Modal */}
-      <BreathingModal
+      {/* Intervention Popup */}
+      <StressBreathingPopup
         isOpen={showIntervention}
         onClose={() => setShowIntervention(false)}
-        calmingMessage={interventionMsg}
+        message={interventionMsg}
       />
     </div>
   );
