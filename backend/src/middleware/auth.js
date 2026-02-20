@@ -46,34 +46,6 @@ export const adminMiddleware = (req, res, next) => {
 };
 
 /**
- * Middleware for error handling
- */
-export const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err.message);
-
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation error',
-      errors: Object.values(err.errors).map(e => e.message)
-    });
-  }
-
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern)[0];
-    return res.status(400).json({
-      success: false,
-      message: `${field} already exists`
-    });
-  }
-
-  res.status(err.statusCode || 500).json({
-    success: false,
-    message: err.message || 'Internal server error'
-  });
-};
-
-/**
  * Middleware to log requests (optional)
  */
 export const requestLogger = (req, res, next) => {

@@ -44,8 +44,7 @@ const AISuggestionSchema = new mongoose.Schema({
   },
   feedback: {
     type: String,
-    enum: ['helpful', 'not_helpful', 'neutral'],
-    default: null
+    enum: ['helpful', 'not_helpful', 'neutral']
   },
   createdAt: {
     type: Date,

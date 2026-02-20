@@ -74,6 +74,26 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  streakCount: {
+    type: Number,
+    default: 0
+  },
+  lastActiveDate: {
+    type: Date,
+    default: null
+  },
+  tokens: {
+    type: Number,
+    default: 0
+  },
+  totalEarnedTokens: {
+    type: Number,
+    default: 0
+  },
+  totalRedeemedTokens: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -85,7 +105,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt field before saving
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

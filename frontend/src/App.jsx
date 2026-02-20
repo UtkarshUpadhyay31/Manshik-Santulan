@@ -11,13 +11,14 @@ import MentorList from './pages/MentorList';
 import TherapistList from './pages/TherapistList';
 import ProfessionalProfile from './pages/ProfessionalProfile';
 import Navbar from './components/Navbar';
-import StreakBanner from './components/StreakBanner';
+import StreakBar from './components/StreakBar';
 import SessionPage from './pages/SessionPage';
 import GamesPage from './pages/GamesPage';
 import FocusGame from './components/games/FocusGame';
 import MemoryGame from './components/games/MemoryGame';
 import EmotionBalanceGame from './components/games/EmotionBalanceGame';
 import MoodCatcherGame from './components/games/MoodCatcherGame';
+import RewardsPage from './pages/RewardsPage';
 
 // Auth Pages
 import LoginPage from './pages/LoginPage';
@@ -49,7 +50,7 @@ const AppContent = () => {
       {showNavbar && <Navbar />}
       {showStreakBanner && (
         <div className={showNavbar ? 'mt-20' : ''}>
-          <StreakBanner />
+          <StreakBar />
         </div>
       )}
       <Routes>
@@ -112,6 +113,11 @@ const AppContent = () => {
         <Route path="/session/:id" element={
           <ProtectedRoute>
             <SessionPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/rewards" element={
+          <ProtectedRoute>
+            <RewardsPage />
           </ProtectedRoute>
         } />
 

@@ -5,13 +5,19 @@ import { Button } from '../UI';
 import { saveGuestMoodEntry } from '../../utils/guestMode';
 import StressBreathingPopup from '../StressBreathingPopup';
 import { RISK_THRESHOLDS, INTERVENTION_MESSAGE, shouldTriggerBreathing } from '../../utils/riskEngine';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+import { Coins, Flame } from 'lucide-react';
 
 const MoodModal = ({ isOpen, onClose }) => {
   const [selectedMood, setSelectedMood] = useState("");
-  const [stressLevel, setStressLevel] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  const [stressLevel, setStressLevel] = useState(5);
   const [feedback, setFeedback] = useState('');
   const [showIntervention, setShowIntervention] = useState(false);
+  const [rewards, setRewards] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const moods = [
     { emoji: '😴', label: 'Tired', value: 'tired' },
@@ -52,29 +58,48 @@ const MoodModal = ({ isOpen, onClose }) => {
     return `${baseMsg}${stressMsg}\n\n${secondMsg}`;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
       if (!selectedMood) return;
+      setIsSubmitting(true);
 
       const generatedFeedback = generateFeedback(selectedMood, stressLevel);
-      setFeedback(generatedFeedback);
 
-      // Save to guest mode
-      saveGuestMoodEntry({
-        mood: selectedMood,
-        emotion: selectedMood,
-        stressLevel: stressLevel ?? 0,
-        description: 'Check-in from Modal'
-      });
+      if (isAuthenticated) {
+        // Authenticated user - call backend
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/mood/entry`, {
+          mood: selectedMood,
+          emotion: selectedMood,
+          stressLevel: stressLevel ?? 0,
+          description: 'Check-in from Modal'
+        }, { withCredentials: true });
+
+        if (response.data.success) {
+          setRewards(response.data.rewards);
+          setFeedback(generatedFeedback);
+        }
+      } else {
+        // Guest user - original logic
+        saveGuestMoodEntry({
+          mood: selectedMood,
+          emotion: selectedMood,
+          stressLevel: stressLevel ?? 0,
+          description: 'Check-in from Modal'
+        });
+        setFeedback(generatedFeedback);
+      }
 
       setSubmitted(true);
 
-      // LEVEL 1: High Stress Detection using riskEngine
+      // LEVEL 1: High Stress Detection
       if (shouldTriggerBreathing(selectedMood, stressLevel)) {
         setShowIntervention(true);
       }
     } catch (error) {
       console.error("MoodModal Error:", error);
+      alert("Failed to save mood entry. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -161,10 +186,10 @@ const MoodModal = ({ isOpen, onClose }) => {
               variant="primary"
               size="lg"
               onClick={handleSubmit}
-              disabled={!selectedMood}
+              disabled={!selectedMood || isSubmitting}
               className="w-full"
             >
-              Get AI Feedback
+              {isSubmitting ? "Processing..." : "Get AI Feedback"}
             </Button>
           </>
         ) : (
@@ -184,6 +209,45 @@ const MoodModal = ({ isOpen, onClose }) => {
                   {feedback}
                 </p>
               </div>
+
+              {rewards && (
+                <div className="flex flex-col gap-3 mb-6">
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center justify-between bg-yellow-50 border border-yellow-100 p-4 rounded-xl shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center text-white shadow-md">
+                        <Coins size={20} fill="currentColor" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-yellow-800">Tokens Earned</p>
+                        <p className="text-xs text-yellow-600">Mental wellness bonus</p>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-black text-yellow-600">+{rewards.tokensEarned}</p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex items-center justify-between bg-orange-50 border border-orange-100 p-4 rounded-xl shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white shadow-md">
+                        <Flame size={20} fill="currentColor" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-orange-800">Current Streak</p>
+                        <p className="text-xs text-orange-600">Consistency is key!</p>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-black text-orange-600">{rewards.streak}d</p>
+                  </motion.div>
+                </div>
+              )}
 
               {/* Access enabled for everyone */}
 

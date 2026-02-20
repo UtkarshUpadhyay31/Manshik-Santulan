@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile, UserPlus, Link2, Send, Mail, Phone, AlertTriangle } from 'lucide-react';
+import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile, UserPlus, Link2, Send, Mail, Phone, AlertTriangle, Gift } from 'lucide-react';
 import { Card, Container, Button } from '../components/UI';
 import AIEmotionMirror from '../components/AIEmotionMirror';
 import StressBreathingPopup from '../components/StressBreathingPopup';
@@ -180,6 +180,9 @@ const Dashboard = () => {
     persistAlertSettings(nextSettings);
   };
 
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [earnedReward, setEarnedReward] = useState(null);
+
   const handleSubmitMood = async (e) => {
     e.preventDefault();
 
@@ -193,17 +196,21 @@ const Dashboard = () => {
 
     if (isAuthenticated) {
       try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/mood/entry`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/mood/entry`, {
           mood,
           emotion,
           stressLevel: parseInt(stressLevel),
           description,
-          triggers: [], // Add fields if form expands
+          triggers: [],
           activities: []
         }, { withCredentials: true });
+
+        if (response.data.success && response.data.rewards?.tokensEarned > 0) {
+          setEarnedReward(response.data.rewards);
+          setShowRewardModal(true);
+        }
       } catch (error) {
         console.error('Failed to save mood:', error);
-        // Optionally show error toast
       }
     } else {
       saveGuestMoodEntry(moodData);
@@ -214,12 +221,7 @@ const Dashboard = () => {
     setStressLevel(5);
     setDescription('');
 
-    if (isAuthenticated) {
-      // Re-fetch to update charts and suggestions immediately
-      loadDashboardData();
-    } else {
-      loadDashboardData();
-    }
+    loadDashboardData();
 
     // Unified Risk Assessment
     if (shouldTriggerBreathing(mood, parseInt(stressLevel))) {
@@ -329,22 +331,69 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
+        {/* Reward Modal */}
+        <AnimatePresence>
+          {showRewardModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-3xl p-8 shadow-2xl max-w-sm w-full text-center relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400" />
+                <div className="w-20 h-20 bg-yellow-100 rounded-2xl flex items-center justify-center text-yellow-600 mx-auto mb-6">
+                  <Zap size={40} fill="currentColor" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Awesome Job!</h3>
+                <p className="text-slate-500 mb-6">You've earned some tokens for checking in today.</p>
+
+                <div className="bg-slate-50 rounded-2xl p-6 mb-8 flex items-center justify-center gap-4">
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tokens</p>
+                    <p className="text-3xl font-black text-slate-900">+{earnedReward?.tokensEarned}</p>
+                  </div>
+                  <div className="w-px h-10 bg-slate-200" />
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Streak</p>
+                    <p className="text-3xl font-black text-slate-900">{earnedReward?.streak}d</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Button variant="primary" className="w-full py-4 rounded-xl font-bold" onClick={() => setShowRewardModal(false)}>
+                    Keep it up!
+                  </Button>
+                  <Link to="/rewards">
+                    <Button variant="ghost" className="w-full text-purple-600 font-bold hover:bg-purple-50">
+                      Go to Rewards <ArrowRight size={18} className="ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {[
-            { icon: Heart, label: 'Latest Mood', value: todayMood?.mood || 'Not recorded', color: 'text-red-500' },
-            { icon: Brain, label: 'Avg Stress', value: moodHistory.length > 0 ? (moodHistory.reduce((sum, m) => sum + m.stressLevel, 0) / moodHistory.length).toFixed(1) : '-', color: 'text-purple-500' },
-            { icon: Activity, label: 'Total Entries', value: moodHistory.length, color: 'text-green-500' },
-            { icon: TrendingUp, label: 'Suggestions', value: suggestions.length, color: 'text-blue-500' }
+            { icon: Heart, label: 'Mood', value: todayMood?.mood || 'None', color: 'text-red-500' },
+            { icon: Gift, label: 'Tokens', value: user?.tokens || 0, color: 'text-yellow-600', link: '/rewards' },
+            { icon: Activity, label: 'Entries', value: moodHistory.length, color: 'text-green-500' },
+            { icon: TrendingUp, label: 'Tips', value: suggestions.length, color: 'text-blue-500' }
           ].map((stat, i) => {
             const Icon = stat.icon;
+            const content = (
+              <Card className={`text-center p-4 sm:p-6 ${stat.link ? 'hover:shadow-md hover:border-yellow-200 transition-all cursor-pointer' : ''}`}>
+                <Icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
+                <p className="text-gray-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider">{stat.label}</p>
+                <p className="text-lg sm:text-2xl font-black text-gray-900 capitalize truncate">{stat.value}</p>
+              </Card>
+            );
             return (
               <motion.div key={i} whileHover={{ y: -5 }}>
-                <Card className="text-center">
-                  <Icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-                  <p className="text-gray-600 text-sm">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 capitalize">{stat.value}</p>
-                </Card>
+                {stat.link ? <Link to={stat.link}>{content}</Link> : content}
               </motion.div>
             );
           })}
@@ -488,12 +537,12 @@ const Dashboard = () => {
                 Personal Safety
               </span>
             </div>
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <p className="text-slate-500 text-sm">
                   Add one trusted person and share an invite message. If your stress stays high for 7 days, you can send an alert quickly.
                 </p>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Name</label>
                     <input
@@ -501,7 +550,7 @@ const Dashboard = () => {
                       value={trustedContact.name}
                       onChange={(e) => persistTrustedContact({ ...trustedContact, name: e.target.value })}
                       placeholder="Trusted person's name"
-                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                      className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 focus:outline-none bg-slate-50/50"
                     />
                   </div>
                   <div>
@@ -511,7 +560,7 @@ const Dashboard = () => {
                       value={trustedContact.relation}
                       onChange={(e) => persistTrustedContact({ ...trustedContact, relation: e.target.value })}
                       placeholder="Friend, sibling, mentor"
-                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                      className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 focus:outline-none bg-slate-50/50"
                     />
                   </div>
                   <div>
@@ -521,7 +570,7 @@ const Dashboard = () => {
                       value={trustedContact.email}
                       onChange={(e) => persistTrustedContact({ ...trustedContact, email: e.target.value })}
                       placeholder="name@email.com"
-                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                      className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 focus:outline-none bg-slate-50/50"
                     />
                   </div>
                   <div>
@@ -531,7 +580,7 @@ const Dashboard = () => {
                       value={trustedContact.phone}
                       onChange={(e) => persistTrustedContact({ ...trustedContact, phone: e.target.value })}
                       placeholder="+91 9XXXXXXXXX"
-                      className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                      className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 focus:outline-none bg-slate-50/50"
                     />
                   </div>
                 </div>
@@ -540,18 +589,18 @@ const Dashboard = () => {
                   <select
                     value={trustedContact.preferred}
                     onChange={(e) => persistTrustedContact({ ...trustedContact, preferred: e.target.value })}
-                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:outline-none"
+                    className="w-full p-3 border-2 border-gray-100 rounded-xl focus:border-emerald-500 focus:outline-none bg-slate-50/50"
                   >
                     <option value="email">Email</option>
                     <option value="sms">SMS</option>
                   </select>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={handleShareLink}
-                    className="gap-2"
+                    className="gap-2 w-full"
                   >
                     <Link2 size={18} /> Share Invite
                   </Button>
@@ -560,7 +609,7 @@ const Dashboard = () => {
                     variant="primary"
                     onClick={handleSendAlert}
                     disabled={!trustedContact.name || (!trustedContact.email && !trustedContact.phone)}
-                    className="gap-2"
+                    className="gap-2 w-full bg-emerald-600 border-none"
                   >
                     <Send size={18} />
                     {highStressInfo.isHighStressWeek ? 'Send Alert Now' : 'Send Test Alert'}
@@ -635,7 +684,7 @@ const Dashboard = () => {
             <Brain className="w-6 h-6 text-indigo-600" />
             Mind Training Progress
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { id: 'focus', title: 'Focus Tap', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
               { id: 'memory', title: 'Memory Flip', icon: Brain, color: 'text-purple-500', bg: 'bg-purple-50' },
@@ -704,32 +753,32 @@ const Dashboard = () => {
               <div className="space-y-4">
                 {moodHistory.length > 0 ? (
                   moodHistory.map((entry) => (
-                    <div key={entry._id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100 hover:border-purple-200 transition-colors">
-                      <div className="flex items-start gap-4 mb-2 md:mb-0">
-                        <div className={`p-3 rounded-full ${entry.mood === 'happy' || entry.mood === 'excited' ? 'bg-green-100 text-green-600' :
+                    <div key={entry._id} className="flex flex-col gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-purple-200 transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-full shrink-0 ${entry.mood === 'happy' || entry.mood === 'excited' ? 'bg-green-100 text-green-600' :
                           entry.mood === 'sad' || entry.mood === 'tired' ? 'bg-blue-100 text-blue-600' :
                             'bg-gray-100 text-gray-600'
                           }`}>
                           <Heart size={20} fill="currentColor" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-slate-900 capitalize">{entry.mood}</span>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-500 capitalize">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="font-bold text-slate-900 capitalize">{entry.mood}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-slate-100 text-slate-500 capitalize font-medium">
                               {entry.emotion}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-500 mt-1">{entry.description || 'No notes added'}</p>
+                          <p className="text-sm text-slate-500 line-clamp-2">{entry.description || 'No notes added'}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-6 text-sm text-slate-400 pl-14 md:pl-0">
-                        <div className="flex items-center gap-1">
-                          <Activity size={14} />
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 text-[10px] sm:text-xs text-slate-400 font-medium">
+                        <div className="flex items-center gap-1.5">
+                          <Activity size={14} className="text-slate-300" />
                           <span>Stress: {entry.stressLevel}/10</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar size={14} />
-                          <span>{new Date(entry.timestamp).toLocaleString()}</span>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={14} className="text-slate-300" />
+                          <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>

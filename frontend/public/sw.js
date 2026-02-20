@@ -46,7 +46,6 @@ self.addEventListener('fetch', (event) => {
             // Return cached response if found
             if (response) return response;
 
-            // Otherwise fetch and cache
             return fetch(event.request).then((networkResponse) => {
                 if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
                     return networkResponse;
@@ -61,8 +60,11 @@ self.addEventListener('fetch', (event) => {
             }).catch(() => {
                 // If both fail, return index.html for navigation requests (SPA)
                 if (event.request.mode === 'navigate') {
-                    return caches.match('/index.html');
+                    return caches.match('/index.html').then(cachedResponse => {
+                        return cachedResponse || new Response('Offline and page not found in cache', { status: 503 });
+                    });
                 }
+                return new Response('Offline and not in cache', { status: 503 });
             });
         })
     );

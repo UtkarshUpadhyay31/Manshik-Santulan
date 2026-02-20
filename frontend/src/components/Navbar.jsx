@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle, LogOut, ShieldCheck, Brain } from 'lucide-react';
+import { Menu, X, ArrowRight, Home, Users, Heart, LayoutDashboard, HelpCircle, LogOut, ShieldCheck, Brain, Gift } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Container } from './UI';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,6 +28,7 @@ const Navbar = () => {
         { label: 'Mentors', path: '/mentors', icon: Users },
         { label: 'Therapists', path: '/therapists', icon: Heart },
         { label: 'Games', path: '/games', icon: Brain },
+        { label: 'Rewards', path: '/rewards', icon: Gift },
         { label: 'Help Now', path: '/help', icon: HelpCircle },
     ];
 
@@ -109,71 +111,87 @@ const Navbar = () => {
             </Container>
 
             {/* Mobile Menu */}
-            {mobileMenuOpen && (
-                <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-white/40 p-6 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 text-lg font-medium p-3 rounded-2xl transition-colors ${isActive(item.path)
-                                    ? 'bg-purple-50 text-purple-600'
-                                    : 'text-slate-900 hover:bg-slate-50'
-                                    }`}
-                            >
-                                <Icon size={20} />
-                                {item.label}
-                            </Link>
-                        );
-                    })}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: '100%' }}
+                        className="md:hidden fixed inset-0 z-[60] bg-white pt-24 px-6 flex flex-col gap-4 overflow-y-auto"
+                    >
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`flex items-center gap-4 text-xl font-bold p-4 rounded-2xl transition-all ${isActive(item.path)
+                                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
+                                        : 'text-slate-600 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    <Icon size={24} />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
 
-                    <div className="border-t border-slate-100 pt-4 mt-2 space-y-3">
-                        {isAuthenticated ? (
-                            <>
-                                {isAdmin && (
-                                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
-                                        <Button className="w-full rounded-2xl bg-amber-50 text-amber-700 py-4 gap-2 border border-amber-200">
-                                            <ShieldCheck size={20} /> Admin Panel
+                        <div className="border-t border-slate-100 pt-8 mt-4 space-y-4">
+                            {isAuthenticated ? (
+                                <>
+                                    <div className="flex items-center gap-3 px-4 mb-4">
+                                        <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xl">
+                                            {user?.firstName?.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Logged in as</p>
+                                            <p className="text-lg font-bold text-slate-900">{user?.firstName}</p>
+                                        </div>
+                                    </div>
+
+                                    {isAdmin && (
+                                        <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                                            <Button variant="secondary" className="w-full text-amber-700 border-amber-200 bg-amber-50">
+                                                <ShieldCheck size={20} /> Admin Panel
+                                            </Button>
+                                        </Link>
+                                    )}
+
+                                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                                        <Button className="w-full py-5">
+                                            Go to Dashboard <ArrowRight size={20} className="ml-2" />
                                         </Button>
                                     </Link>
-                                )}
-                                <div className="px-2 mb-2 text-lg font-bold text-slate-800">
-                                    Hi, {user?.firstName}
+
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        className="w-full py-5 text-red-500 font-bold flex items-center justify-center gap-2 bg-red-50 rounded-2xl"
+                                    >
+                                        <LogOut size={20} /> Log Out
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                                        <Button variant="secondary" className="w-full py-5">
+                                            Log In
+                                        </Button>
+                                    </Link>
+                                    <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                                        <Button className="w-full py-5">
+                                            Sign Up
+                                        </Button>
+                                    </Link>
                                 </div>
-                                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                                    <Button className="w-full rounded-2xl bg-slate-900 text-white py-4">
-                                        Go to Dashboard <ArrowRight size={20} className="ml-2" />
-                                    </Button>
-                                </Link>
-                                <button
-                                    onClick={() => {
-                                        logout();
-                                        setMobileMenuOpen(false);
-                                    }}
-                                    className="w-full py-4 text-red-500 font-semibold flex items-center justify-center gap-2"
-                                >
-                                    <LogOut size={20} /> Log Out
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                                    <Button variant="ghost" className="w-full py-4 rounded-2xl text-slate-700 border border-slate-200">
-                                        Log In
-                                    </Button>
-                                </Link>
-                                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                                    <Button className="w-full rounded-2xl bg-purple-600 text-white py-4 shadow-xl shadow-purple-600/20">
-                                        Join Now
-                                    </Button>
-                                </Link>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };

@@ -9,19 +9,19 @@ export const Button = ({
   className = '',
   ...props
 }) => {
-  const baseClass = 'font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2';
+  const baseClass = 'font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/50',
-    secondary: 'bg-white border-2 border-purple-500 text-purple-500 hover:bg-purple-50',
-    ghost: 'text-purple-600 hover:bg-purple-50',
-    danger: 'bg-red-500 text-white hover:bg-red-600',
+    primary: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-xl hover:shadow-purple-500/20',
+    secondary: 'bg-white border-2 border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-600',
+    ghost: 'text-slate-600 hover:bg-slate-100 hover:text-purple-600',
+    danger: 'bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-red-500/20',
   };
 
   const sizes = {
-    sm: 'px-3 py-1 text-sm',
-    md: 'px-6 py-2 text-base',
-    lg: 'px-8 py-3 text-lg',
+    sm: 'px-4 py-2 text-sm min-h-[38px]',
+    md: 'px-6 py-3 text-base min-h-[44px]',
+    lg: 'px-8 py-4 text-lg min-h-[56px]',
   };
 
   return (
@@ -78,14 +78,14 @@ export const Card = React.forwardRef(({ children, className = '', hoverable = fa
   <motion.div
     ref={ref}
     whileHover={hoverable ? { y: -5 } : {}}
-    className={`glass rounded-xl p-6 ${hoverable ? 'cursor-pointer' : ''} ${className}`}
+    className={`bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100 ${hoverable ? 'cursor-pointer hover:shadow-xl hover:border-purple-100 transition-all' : ''} ${className}`}
   >
     {children}
   </motion.div>
 ));
 
 export const Container = ({ children, className = '' }) => (
-  <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+  <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full ${className}`}>
     {children}
   </div>
 );

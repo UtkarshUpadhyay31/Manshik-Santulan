@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     getStreak,
+    updateStreak,
     incrementStreak,
     getStreakHistory,
     getAdminStreakAnalytics,
@@ -13,6 +14,7 @@ const router = express.Router();
 // Protected routes (User)
 router.use(authMiddleware);
 router.get('/', getStreak);
+router.post('/update', updateStreak);
 router.post('/increment', incrementStreak);
 router.get('/history', getStreakHistory);
 

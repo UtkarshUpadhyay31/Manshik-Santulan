@@ -11,18 +11,19 @@ const MoodEntrySchema = new mongoose.Schema({
   },
   mood: {
     type: String,
-    enum: ['very_sad', 'sad', 'neutral', 'happy', 'very_happy', 'excited', 'content', 'tired'],
+    enum: ['very_sad', 'sad', 'neutral', 'happy', 'very_happy', 'excited', 'content', 'tired', 'great'],
     required: [true, 'Mood is required']
   },
   emotion: {
     type: String,
-    enum: ['stressed', 'anxious', 'calm', 'content', 'excited', 'confused', 'angry', 'tired'],
+    enum: ['stressed', 'anxious', 'calm', 'content', 'excited', 'confused', 'angry', 'tired', 'happy', 'sad', 'neutral', 'great'],
     required: [true, 'Emotion is required']
   },
   stressLevel: {
     type: Number,
-    min: 1,
+    min: 0,
     max: 10,
+    default: 5,
     required: [true, 'Stress level is required']
   },
   description: {

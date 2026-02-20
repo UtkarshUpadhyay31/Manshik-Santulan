@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, CheckCircle2, Circle } from 'lucide-react';
+import { Flame, CheckCircle2, Circle, Coins, Gift, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
 const StreakBanner = () => {
     const { isAuthenticated, user } = useAuth();
     const [streakData, setStreakData] = useState(null);
+    const [userTokens, setUserTokens] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [showCelebration, setShowCelebration] = useState(false);
 
@@ -24,6 +26,14 @@ const StreakBanner = () => {
 
             if (response.data.success) {
                 setStreakData(response.data.streak);
+
+                // Fetch tokens as well
+                const rewardsRes = await axios.get(`${import.meta.env.VITE_API_URL}/rewards`, {
+                    withCredentials: true
+                });
+                if (rewardsRes.data.success) {
+                    setUserTokens(rewardsRes.data.userTokens);
+                }
 
                 // Check for milestone celebration
                 const currentStreak = response.data.streak.currentStreak;
@@ -147,20 +157,47 @@ const StreakBanner = () => {
                         ))}
                     </div>
 
-                    {/* Right: Motivational Message */}
-                    <motion.div
-                        key={getMotivationalMessage()}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-right"
-                    >
-                        <p className="text-sm font-bold text-purple-700 italic">
-                            {getMotivationalMessage()}
-                        </p>
-                        <p className="text-xs text-slate-500 mt-1">
-                            Longest: {streakData.longestStreak || 0} days
-                        </p>
-                    </motion.div>
+                    {/* Right: Tokens & Rewards */}
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-purple-100 shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-white">
+                                <Coins size={18} fill="currentColor" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-slate-900">{userTokens}</p>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Calm Tokens</p>
+                            </div>
+                            <Link to="/rewards">
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="ml-2 p-1.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                                >
+                                    <Gift size={16} />
+                                </motion.button>
+                            </Link>
+                        </div>
+
+                        <div className="hidden lg:block h-10 w-px bg-purple-100" />
+
+                        <div className="text-right">
+                            <p className="text-sm font-bold text-purple-700 italic">
+                                {getMotivationalMessage()}
+                            </p>
+                            <div className="flex items-center justify-end gap-2 mt-1">
+                                <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${(currentStreak % 7) / 7 * 100}%` }}
+                                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                                    />
+                                </div>
+                                <p className="text-[10px] font-bold text-slate-500">
+                                    {7 - (currentStreak % 7)} days to bonus
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

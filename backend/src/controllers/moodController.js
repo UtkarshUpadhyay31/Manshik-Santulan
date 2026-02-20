@@ -1,6 +1,7 @@
 import MoodEntry from '../models/MoodEntry.js';
 import AISuggestion from '../models/AISuggestion.js';
 import { mapEmotionToMood, analyzeSentiment, getTimeContext } from '../utils/authUtils.js';
+import { performStreakUpdate } from './streakController.js';
 
 /**
  * Create Mood Entry - User submits daily mood check-in
@@ -29,13 +30,29 @@ export const createMoodEntry = async (req, res) => {
 
     await moodEntry.save();
 
+    // Update streak and tokens for activity
+    let rewards = { tokensEarned: 0, streak: 0, isNewMilestone: false };
+    try {
+      const streakResult = await performStreakUpdate(req.user.userId);
+      if (streakResult) {
+        rewards = {
+          tokensEarned: streakResult.tokensEarned,
+          streak: streakResult.streakCount,
+          isNewMilestone: streakResult.bonusAwarded > 0
+        };
+      }
+    } catch (streakError) {
+      console.error('Error updating streak during mood entry:', streakError);
+    }
+
     // Generate AI suggestions based on mood
     await generateAISuggestions(req.user.userId, mood, stressLevel);
 
     res.status(201).json({
       success: true,
       message: 'Mood entry created successfully',
-      moodEntry
+      moodEntry,
+      rewards
     });
   } catch (error) {
     console.error('Create mood entry error:', error);
