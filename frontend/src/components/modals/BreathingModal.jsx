@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../UI';
+import { useUIStore } from '../../context/store';
 
-const BreathingModal = ({ isOpen, onClose }) => {
+const BreathingModal = ({ isOpen, onClose, calmingMessage }) => {
+  const { activeBreathingId, startBreathing, stopBreathing, isCrisisMode } = useUIStore();
   const [stage, setStage] = useState('breathing'); // breathing, complete
   const [breathingCycle, setBreathingCycle] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -12,6 +14,46 @@ const BreathingModal = ({ isOpen, onClose }) => {
   const [isAudioBlocked, setIsAudioBlocked] = useState(false);
   const audioRef = useRef(null);
   const fadeIntervalRef = useRef(null);
+  const breathingIntervalRef = useRef(null);
+
+  // If a calming message is provided, reduce time to 60 seconds as per requirement
+  useEffect(() => {
+    if (calmingMessage && isOpen) {
+      setSecondsLeft(60);
+      setIsActive(true); // Auto-start if it's an intervention
+      startBreathing('modal');
+    }
+  }, [calmingMessage, isOpen]);
+
+  // Global coordination: Stop if another exercise starts or crisis mode active
+  useEffect(() => {
+    if (activeBreathingId && activeBreathingId !== 'modal' && isActive) {
+      setIsActive(false);
+    }
+  }, [activeBreathingId, isActive]);
+
+  useEffect(() => {
+    if (isCrisisMode && isActive) {
+      setIsActive(false);
+    }
+  }, [isCrisisMode, isActive]);
+
+  // Sync internal isActive with global state
+  useEffect(() => {
+    if (isActive && isOpen) {
+      startBreathing('modal');
+    } else if (!isActive && activeBreathingId === 'modal') {
+      stopBreathing('modal');
+    }
+  }, [isActive, isOpen]);
+
+  // Cleanup on close
+  useEffect(() => {
+    if (!isOpen) {
+      setIsActive(false);
+      stopBreathing('modal');
+    }
+  }, [isOpen]);
 
   const BREATHING_PATTERN = {
     inhale: 4,
@@ -79,21 +121,38 @@ const BreathingModal = ({ isOpen, onClose }) => {
   }, [isActive, soundEnabled, stage, isOpen]);
 
   useEffect(() => {
-    if (!isActive || stage !== 'breathing') return;
+    if (!isActive || stage !== 'breathing') {
+      if (breathingIntervalRef.current) {
+        clearInterval(breathingIntervalRef.current);
+        breathingIntervalRef.current = null;
+      }
+      return;
+    }
 
-    const interval = setInterval(() => {
+    if (breathingIntervalRef.current) return; // Guard
+
+    breathingIntervalRef.current = setInterval(() => {
       setBreathingCycle((prev) => (prev + 1) % (TOTAL_CYCLE_TIME * 10));
       setSecondsLeft((prev) => {
         if (prev <= 1) {
           setStage('complete');
           setIsActive(false);
+          if (breathingIntervalRef.current) {
+            clearInterval(breathingIntervalRef.current);
+            breathingIntervalRef.current = null;
+          }
           return 0;
         }
         return prev - 1;
       });
     }, 100);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (breathingIntervalRef.current) {
+        clearInterval(breathingIntervalRef.current);
+        breathingIntervalRef.current = null;
+      }
+    };
   }, [isActive, stage]);
 
   const getBreathingPhase = () => {
@@ -148,6 +207,17 @@ const BreathingModal = ({ isOpen, onClose }) => {
         className="bg-white rounded-[2.5rem] p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl relative border border-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Calming Intervention Message */}
+        {calmingMessage && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="mb-6 p-4 bg-purple-50 border border-purple-100 rounded-2xl text-purple-800 text-sm font-medium text-center shadow-sm"
+          >
+            {calmingMessage}
+          </motion.div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Breathing Exercise</h2>

@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Brain, ArrowRight, Menu, X, Activity, Phone, MessageSquare, Wind, Zap, Sun, ShieldAlert, ChevronRight, RefreshCw, Volume2, VolumeX } from 'lucide-react';
 import { Button, Container, Card } from '../components/UI';
+import { useUIStore } from '../context/store';
 
 const HelpPage = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeExercise, setActiveExercise] = useState(null); // 'box', '478', 'grounding'
     const [panicActive, setPanicActive] = useState(false);
     const [groundiningStep, setGroundingStep] = useState(0);
+    const [breathingCompleted, setBreathingCompleted] = useState(false);
+
+    // Global coordination
+    const { activeBreathingId, startBreathing: setGlobalBreathing, stopBreathing: clearGlobalBreathing, isCrisisMode } = useUIStore();
 
     // Breathing Timer State
     const [timer, setTimer] = useState(0);
@@ -84,7 +89,13 @@ const HelpPage = () => {
     // Box Breathing: 4-4-4-4
     // 4-7-8 Breathing: 4 (In), 7 (Hold), 8 (Out)
 
-    const startBreathing = (type) => {
+    const startBreathing = (type, isCrisis = false) => {
+        // Stop current if any
+        if (isRunning) stopBreathing();
+
+        const id = isCrisis ? 'crisis' : 'help-page';
+        setGlobalBreathing(id, isCrisis);
+
         setIsRunning(true);
         setActiveExercise(type);
         setTimer(type === 'box' ? 4 : 4);
@@ -92,14 +103,33 @@ const HelpPage = () => {
     };
 
     const stopBreathing = () => {
+        const id = panicActive ? 'crisis' : 'help-page';
+        clearGlobalBreathing(id);
+
         setIsRunning(false);
         setActiveExercise(null);
         setPhase('');
         if (timerRef.current) clearInterval(timerRef.current);
     };
 
+    // Global Coordination: Stop if another exercise starts (unless it's us)
+    useEffect(() => {
+        if (activeBreathingId && activeBreathingId !== (panicActive ? 'crisis' : 'help-page') && isRunning) {
+            stopBreathing();
+        }
+    }, [activeBreathingId, panicActive, isRunning]);
+
+    // Handle high-priority crisis interruption
+    useEffect(() => {
+        if (isCrisisMode && !panicActive && isRunning) {
+            stopBreathing();
+        }
+    }, [isCrisisMode, panicActive, isRunning]);
+
     useEffect(() => {
         if (isRunning && (activeExercise === 'box' || activeExercise === '478')) {
+            if (timerRef.current) return; // Guard against multiple intervals
+
             timerRef.current = setInterval(() => {
                 setTimer((prev) => {
                     if (prev <= 1) {
@@ -108,20 +138,36 @@ const HelpPage = () => {
                             if (phase === 'Inhale') { setPhase('Hold'); return 4; }
                             if (phase === 'Hold') { setPhase('Exhale'); return 4; }
                             if (phase === 'Exhale') { setPhase('Hold '); return 4; }
-                            if (phase === 'Hold ') { setPhase('Inhale'); return 4; }
+                            if (phase === 'Hold ') {
+                                if (panicActive && timer <= 1) setBreathingCompleted(true);
+                                setPhase('Inhale');
+                                return 4;
+                            }
                         } else if (activeExercise === '478') {
                             if (phase === 'Inhale') { setPhase('Hold'); return 7; }
                             if (phase === 'Hold') { setPhase('Exhale'); return 8; }
-                            if (phase === 'Exhale') { setPhase('Inhale'); return 4; }
+                            if (phase === 'Exhale') {
+                                if (panicActive && timer <= 1) setBreathingCompleted(true);
+                                setPhase('Inhale');
+                                return 4;
+                            }
                         }
                     }
                     return prev - 1;
                 });
             }, 1000);
         } else {
-            clearInterval(timerRef.current);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
         }
-        return () => clearInterval(timerRef.current);
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        };
     }, [isRunning, activeExercise, phase]);
 
     const quotes = [
@@ -151,9 +197,27 @@ const HelpPage = () => {
 
     const handlePanic = () => {
         setPanicActive(true);
-        startBreathing('box');
+        setBreathingCompleted(false);
+        startBreathing('box', true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('crisis') === 'true') {
+            // Priority: Clear everything else and start crisis mode
+            setGlobalBreathing('crisis', true);
+            handlePanic();
+        }
+    }, []);
+
+    // Cleanup when leaving page
+    useEffect(() => {
+        return () => {
+            clearGlobalBreathing('crisis');
+            clearGlobalBreathing('help-page');
+        };
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#FDFCFB] text-slate-800 font-sans selection:bg-purple-100 selection:text-purple-900 overflow-x-hidden">
@@ -221,152 +285,187 @@ const HelpPage = () => {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="mb-16 p-8 bg-red-50 border border-red-100 rounded-[2.5rem] text-center"
+                            className="mb-16 p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-center"
                         >
-                            <h2 className="text-2xl font-bold text-red-900 mb-2">Emergency Mode Active</h2>
-                            <p className="text-red-700 mb-6">Focus on the circle below. Breathe with the rhythm. Help is available.</p>
-                            <div className="flex flex-wrap justify-center gap-4">
-                                {emergencyContacts.map((c, i) => (
-                                    <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex flex-col items-center">
-                                        <span className="font-bold text-slate-900">{c.name}</span>
-                                        <a href={`tel:${c.phone}`} className="text-red-600 font-bold text-xl my-2">{c.phone}</a>
-                                        <div className="flex gap-2">
-                                            <a href={`tel:${c.phone}`} className="p-2 bg-red-50 text-red-600 rounded-lg"><Phone size={18} /></a>
-                                            <a href={`sms:${c.phone}`} className="p-2 bg-blue-50 text-blue-600 rounded-lg"><MessageSquare size={18} /></a>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Help is Here.</h2>
+                            {!breathingCompleted ? (
+                                <>
+                                    <p className="text-slate-600 mb-6">Let's start by calming your breath. Focus on the circle below.</p>
+                                    <div className="flex flex-col items-center">
+                                        <div className="relative w-48 h-48 mb-8 flex items-center justify-center">
+                                            <motion.div
+                                                animate={{
+                                                    scale: phase === 'Inhale' ? 1.5 : phase === 'Exhale' ? 1 : 1.5,
+                                                    opacity: phase === 'Hold' || phase === 'Hold ' ? 0.8 : 1
+                                                }}
+                                                transition={{ duration: timer, ease: "linear" }}
+                                                className="absolute inset-0 bg-red-100 rounded-full"
+                                            />
+                                            <div className="relative z-10 text-4xl font-bold text-red-600">{timer}</div>
+                                        </div>
+                                        <div className="text-2xl font-bold text-slate-800 mb-2 uppercase tracking-widest">{phase}</div>
+                                        <p className="text-slate-500">Box Breathing (4-4-4-4)</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-slate-600 mb-10">You're doing great. Choose how you'd like to proceed:</p>
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <Link to="/help" onClick={() => {/* Open AI Chat Modal - This requires linking to Dashboard or App state */ }} className="p-6 bg-white border border-slate-200 rounded-2xl hover:border-purple-500 transition-all flex flex-col items-center gap-3">
+                                            <Brain className="text-purple-500" />
+                                            <span className="font-bold text-slate-900">Talk to AI</span>
+                                        </Link>
+                                        <Link to="/mentors" className="p-6 bg-white border border-slate-200 rounded-2xl hover:border-blue-500 transition-all flex flex-col items-center gap-3">
+                                            <Users className="text-blue-500" />
+                                            <span className="font-bold text-slate-900">Connect to Mentor</span>
+                                        </Link>
+                                        <Link to="/therapists" className="p-6 bg-white border border-slate-200 rounded-2xl hover:border-pink-500 transition-all flex flex-col items-center gap-3">
+                                            <Heart className="text-pink-500" />
+                                            <span className="font-bold text-slate-900">Contact Therapist</span>
+                                        </Link>
+                                        <div className="p-6 bg-red-50 border border-red-200 rounded-2xl flex flex-col items-center gap-3">
+                                            <ShieldAlert className="text-red-500" />
+                                            <span className="font-bold text-red-900">Emergency Support</span>
+                                            <div className="flex gap-2">
+                                                <a href="tel:9999666555" className="p-2 bg-red-100 text-red-600 rounded-lg"><Phone size={16} /></a>
+                                                <a href="sms:9999666555" className="p-2 bg-blue-100 text-blue-600 rounded-lg"><MessageSquare size={16} /></a>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                            <button onClick={() => setPanicActive(false)} className="mt-8 text-red-900 underline font-medium">I'm feeling better now</button>
+                                    <button onClick={() => setPanicActive(false)} className="mt-8 text-slate-500 underline font-medium">I'm feeling better now</button>
+                                </>
+                            )}
                         </motion.div>
                     )}
 
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        {/* Breathing Section */}
-                        <Card className="p-8 md:p-12 relative overflow-hidden">
-                            <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                                <Wind className="text-blue-500" /> Breathing Space
-                            </h2>
+                    {!panicActive && !isCrisisMode && (
+                        <div className="grid lg:grid-cols-2 gap-12">
+                            {/* Breathing Section */}
+                            <Card className="p-8 md:p-12 relative overflow-hidden">
+                                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                                    <Wind className="text-blue-500" /> Breathing Space
+                                </h2>
 
-                            <div className="flex flex-col items-center justify-center min-h-[300px]">
-                                <AnimatePresence mode="wait">
-                                    {activeExercise ? (
-                                        <motion.div
-                                            key="timer"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            className="text-center"
-                                        >
-                                            <div className="relative w-48 h-48 mb-8 flex items-center justify-center">
-                                                <motion.div
-                                                    animate={{
-                                                        scale: phase === 'Inhale' ? 1.5 : phase === 'Exhale' ? 1 : 1.5,
-                                                        opacity: phase === 'Hold' || phase === 'Hold ' ? 0.8 : 1
-                                                    }}
-                                                    transition={{ duration: timer, ease: "linear" }}
-                                                    className="absolute inset-0 bg-blue-100 rounded-full"
+                                <div className="flex flex-col items-center justify-center min-h-[300px]">
+                                    <AnimatePresence mode="wait">
+                                        {activeExercise ? (
+                                            <motion.div
+                                                key="timer"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="text-center"
+                                            >
+                                                <div className="relative w-48 h-48 mb-8 flex items-center justify-center">
+                                                    <motion.div
+                                                        animate={{
+                                                            scale: phase === 'Inhale' ? 1.5 : phase === 'Exhale' ? 1 : 1.5,
+                                                            opacity: phase === 'Hold' || phase === 'Hold ' ? 0.8 : 1
+                                                        }}
+                                                        transition={{ duration: timer, ease: "linear" }}
+                                                        className="absolute inset-0 bg-blue-100 rounded-full"
+                                                    />
+                                                    <div className="relative z-10 text-4xl font-bold text-blue-600">{timer}</div>
+                                                </div>
+                                                <div className="text-2xl font-bold text-slate-800 mb-2 uppercase tracking-widest">{phase}</div>
+                                                <p className="text-slate-500 mb-8">{activeExercise === 'box' ? "Box Breathing (4-4-4-4)" : "4-7-8 Technique"}</p>
+
+                                                <div className="flex flex-col items-center gap-4">
+                                                    {isAudioBlocked && isRunning && (
+                                                        <motion.button
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            onClick={() => { setSoundEnabled(true); setIsAudioBlocked(false); }}
+                                                            className="px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold animate-pulse"
+                                                        >
+                                                            Tap to enable calming sound
+                                                        </motion.button>
+                                                    )}
+
+                                                    <div className="flex gap-4">
+                                                        <Button onClick={stopBreathing} variant="secondary" className="rounded-full">Stop Exercise</Button>
+                                                        <Button
+                                                            onClick={() => { setSoundEnabled(!soundEnabled); setIsAudioBlocked(false); }}
+                                                            variant="ghost"
+                                                            className={`rounded-full p-3 transition-all ${soundEnabled ? 'text-purple-600 bg-purple-50' : 'text-slate-400 bg-slate-50'}`}
+                                                        >
+                                                            {soundEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="menu"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="grid gap-4 w-full"
+                                            >
+                                                <button
+                                                    onClick={() => startBreathing('box')}
+                                                    className="p-6 bg-blue-50 hover:bg-blue-100 rounded-2xl border border-blue-100 text-left transition-all group"
+                                                >
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-bold text-lg text-blue-900">Box Breathing</span>
+                                                        <ArrowRight size={20} className="text-blue-400 group-hover:translate-x-1 transition-transform" />
+                                                    </div>
+                                                    <p className="text-sm text-blue-700">Equal inhale, hold, exhale, and hold. Great for instant focus.</p>
+                                                </button>
+                                                <button
+                                                    onClick={() => startBreathing('478')}
+                                                    className="p-6 bg-purple-50 hover:bg-purple-100 rounded-2xl border border-purple-100 text-left transition-all group"
+                                                >
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-bold text-lg text-purple-900">4-7-8 Technique</span>
+                                                        <ArrowRight size={20} className="text-purple-400 group-hover:translate-x-1 transition-transform" />
+                                                    </div>
+                                                    <p className="text-sm text-purple-700">Deep relaxation technique. Inhale for 4, hold for 7, exhale for 8.</p>
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </Card>
+
+                            {/* Grounding Section */}
+                            <Card className="p-8 md:p-12">
+                                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                                    <Zap className="text-yellow-500" /> Grounding Exercise
+                                </h2>
+
+                                <div className="min-h-[300px]">
+                                    <div className="mb-8">
+                                        <div className="flex gap-2 mb-4">
+                                            {[5, 4, 3, 2, 1].map((step) => (
+                                                <div
+                                                    key={step}
+                                                    className={`h-2 flex-1 rounded-full ${5 - step <= groundiningStep ? 'bg-yellow-400' : 'bg-slate-100'}`}
                                                 />
-                                                <div className="relative z-10 text-4xl font-bold text-blue-600">{timer}</div>
+                                            ))}
+                                        </div>
+                                        <h3 className="text-3xl font-bold text-slate-900 mb-2">{groundingSteps[groundiningStep].id}</h3>
+                                        <p className="text-lg text-slate-600">{groundingSteps[groundiningStep].label}</p>
+                                    </div>
+
+                                    <div className="space-y-3 mb-12">
+                                        {groundingSteps[groundiningStep].items.map((item, i) => (
+                                            <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 flex items-center gap-3">
+                                                <div className="w-2 h-2 rounded-full bg-yellow-400" /> {item}
                                             </div>
-                                            <div className="text-2xl font-bold text-slate-800 mb-2 uppercase tracking-widest">{phase}</div>
-                                            <p className="text-slate-500 mb-8">{activeExercise === 'box' ? "Box Breathing (4-4-4-4)" : "4-7-8 Technique"}</p>
-
-                                            <div className="flex flex-col items-center gap-4">
-                                                {isAudioBlocked && isRunning && (
-                                                    <motion.button
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        onClick={() => { setSoundEnabled(true); setIsAudioBlocked(false); }}
-                                                        className="px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold animate-pulse"
-                                                    >
-                                                        Tap to enable calming sound
-                                                    </motion.button>
-                                                )}
-
-                                                <div className="flex gap-4">
-                                                    <Button onClick={stopBreathing} variant="secondary" className="rounded-full">Stop Exercise</Button>
-                                                    <Button
-                                                        onClick={() => { setSoundEnabled(!soundEnabled); setIsAudioBlocked(false); }}
-                                                        variant="ghost"
-                                                        className={`rounded-full p-3 transition-all ${soundEnabled ? 'text-purple-600 bg-purple-50' : 'text-slate-400 bg-slate-50'}`}
-                                                    >
-                                                        {soundEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ) : (
-                                        <motion.div
-                                            key="menu"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="grid gap-4 w-full"
-                                        >
-                                            <button
-                                                onClick={() => startBreathing('box')}
-                                                className="p-6 bg-blue-50 hover:bg-blue-100 rounded-2xl border border-blue-100 text-left transition-all group"
-                                            >
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="font-bold text-lg text-blue-900">Box Breathing</span>
-                                                    <ArrowRight size={20} className="text-blue-400 group-hover:translate-x-1 transition-transform" />
-                                                </div>
-                                                <p className="text-sm text-blue-700">Equal inhale, hold, exhale, and hold. Great for instant focus.</p>
-                                            </button>
-                                            <button
-                                                onClick={() => startBreathing('478')}
-                                                className="p-6 bg-purple-50 hover:bg-purple-100 rounded-2xl border border-purple-100 text-left transition-all group"
-                                            >
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="font-bold text-lg text-purple-900">4-7-8 Technique</span>
-                                                    <ArrowRight size={20} className="text-purple-400 group-hover:translate-x-1 transition-transform" />
-                                                </div>
-                                                <p className="text-sm text-purple-700">Deep relaxation technique. Inhale for 4, hold for 7, exhale for 8.</p>
-                                            </button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </Card>
-
-                        {/* Grounding Section */}
-                        <Card className="p-8 md:p-12">
-                            <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                                <Zap className="text-yellow-500" /> Grounding Exercise
-                            </h2>
-
-                            <div className="min-h-[300px]">
-                                <div className="mb-8">
-                                    <div className="flex gap-2 mb-4">
-                                        {[5, 4, 3, 2, 1].map((step) => (
-                                            <div
-                                                key={step}
-                                                className={`h-2 flex-1 rounded-full ${5 - step <= groundiningStep ? 'bg-yellow-400' : 'bg-slate-100'}`}
-                                            />
                                         ))}
                                     </div>
-                                    <h3 className="text-3xl font-bold text-slate-900 mb-2">{groundingSteps[groundiningStep].id}</h3>
-                                    <p className="text-lg text-slate-600">{groundingSteps[groundiningStep].label}</p>
-                                </div>
 
-                                <div className="space-y-3 mb-12">
-                                    {groundingSteps[groundiningStep].items.map((item, i) => (
-                                        <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-yellow-400" /> {item}
-                                        </div>
-                                    ))}
+                                    <Button
+                                        onClick={() => setGroundingStep((prev) => (prev + 1) % 5)}
+                                        className="w-full rounded-xl py-6 bg-slate-900 hover:bg-slate-800 text-white flex justify-between px-8"
+                                    >
+                                        {groundiningStep === 4 ? "Restart Exercise" : "Next Sensory Step"}
+                                        <ChevronRight />
+                                    </Button>
                                 </div>
-
-                                <Button
-                                    onClick={() => setGroundingStep((prev) => (prev + 1) % 5)}
-                                    className="w-full rounded-xl py-6 bg-slate-900 hover:bg-slate-800 text-white flex justify-between px-8"
-                                >
-                                    {groundiningStep === 4 ? "Restart Exercise" : "Next Sensory Step"}
-                                    <ChevronRight />
-                                </Button>
-                            </div>
-                        </Card>
-                    </div>
+                            </Card>
+                        </div>
+                    )}
 
                     {/* Quotes Grid */}
                     <div className="mt-20">

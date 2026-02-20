@@ -31,6 +31,8 @@ export const useUIStore = create((set) => ({
   isMobileMenuOpen: false,
   showNotification: false,
   notificationMessage: '',
+  activeBreathingId: null, // 'modal', 'help-page', 'crisis'
+  isCrisisMode: false,
 
   toggleDarkMode: () => {
     set((state) => {
@@ -48,4 +50,16 @@ export const useUIStore = create((set) => ({
       set({ showNotification: false });
     }, 3000);
   },
+
+  startBreathing: (id, isCrisis = false) => set({
+    activeBreathingId: id,
+    isCrisisMode: isCrisis
+  }),
+
+  stopBreathing: (id) => set((state) => ({
+    activeBreathingId: state.activeBreathingId === id ? null : state.activeBreathingId,
+    isCrisisMode: state.activeBreathingId === id ? false : state.isCrisisMode
+  })),
+
+  clearCrisisMode: () => set({ isCrisisMode: false, activeBreathingId: null }),
 }));

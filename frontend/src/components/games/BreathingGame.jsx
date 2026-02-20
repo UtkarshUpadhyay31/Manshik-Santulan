@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Button, Card } from '../UI';
 import { ArrowLeft, Play, Square, Volume2, VolumeX, Wind } from 'lucide-react';
 import api from '../../services/api';
+import { useUIStore } from '../../context/store';
 
 const BreathingGame = () => {
     const navigate = useNavigate();
@@ -14,46 +15,91 @@ const BreathingGame = () => {
     const [soundEnabled, setSoundEnabled] = useState(false);
     const [completed, setCompleted] = useState(false);
 
+    // Global coordination
+    const { activeBreathingId, startBreathing, stopBreathing, isCrisisMode } = useUIStore();
+    const timerRef = useRef(null);
+    const cycleTimerRef = useRef(null);
+
     // Breathing Cycle: Inhale 4s, Hold 7s, Exhale 8s (4-7-8 Technique)
     const CYCLE_DURATION = 19000;
 
     useEffect(() => {
-        let timer;
         if (isPlaying && timeLeft > 0) {
-            timer = setInterval(() => {
+            if (timerRef.current) return;
+            timerRef.current = setInterval(() => {
                 setTimeLeft((prev) => prev - 1);
             }, 1000);
-        } else if (timeLeft === 0) {
-            endSession();
+        } else {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            if (timeLeft === 0 && isPlaying) {
+                endSession();
+            }
         }
-        return () => clearInterval(timer);
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        };
     }, [isPlaying, timeLeft]);
 
     useEffect(() => {
-        let cycleTimer;
         if (isPlaying && !completed) {
             runBreathingCycle();
         } else {
             setPhase('ready');
+            if (cycleTimerRef.current) {
+                clearTimeout(cycleTimerRef.current);
+                cycleTimerRef.current = null;
+            }
         }
-        return () => clearTimeout(cycleTimer);
+        return () => {
+            if (cycleTimerRef.current) {
+                clearTimeout(cycleTimerRef.current);
+                cycleTimerRef.current = null;
+            }
+        };
     }, [isPlaying, completed]);
+
+    // Global Coordination
+    useEffect(() => {
+        if (activeBreathingId && activeBreathingId !== 'breathing-game' && isPlaying) {
+            stopSession();
+        }
+    }, [activeBreathingId, isPlaying]);
+
+    useEffect(() => {
+        if (isCrisisMode && isPlaying) {
+            stopSession();
+        }
+    }, [isCrisisMode, isPlaying]);
+
+    useEffect(() => {
+        if (isPlaying) {
+            startBreathing('breathing-game');
+        } else if (activeBreathingId === 'breathing-game') {
+            stopBreathing('breathing-game');
+        }
+    }, [isPlaying]);
 
     const runBreathingCycle = async () => {
         if (!isPlaying) return;
 
         setPhase('inhale');
-        await new Promise(r => setTimeout(r, 4000));
-
-        if (!isPlaying) return;
-        setPhase('hold');
-        await new Promise(r => setTimeout(r, 7000));
-
-        if (!isPlaying) return;
-        setPhase('exhale');
-        await new Promise(r => setTimeout(r, 8000));
-
-        if (isPlaying) runBreathingCycle();
+        cycleTimerRef.current = setTimeout(async () => {
+            if (!isPlaying) return;
+            setPhase('hold');
+            cycleTimerRef.current = setTimeout(async () => {
+                if (!isPlaying) return;
+                setPhase('exhale');
+                cycleTimerRef.current = setTimeout(() => {
+                    if (isPlaying) runBreathingCycle();
+                }, 8000);
+            }, 7000);
+        }, 4000);
     };
 
     const startSession = () => {

@@ -6,6 +6,7 @@ import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis
 import { Heart, Brain, Activity, TrendingUp, Users, ArrowRight, ArrowLeft, User, ShieldCheck, Clock, CheckCircle, Calendar, Zap, Wind, Smile, UserPlus, Link2, Send, Mail, Phone, AlertTriangle } from 'lucide-react';
 import { Card, Container, Button } from '../components/UI';
 import AIEmotionMirror from '../components/AIEmotionMirror';
+import BreathingModal from '../components/modals/BreathingModal';
 import { useMoodStore } from '../context/store';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -37,6 +38,8 @@ const Dashboard = () => {
   const [alertSettings, setAlertSettings] = useState({
     lastAlertedAt: null
   });
+  const [showIntervention, setShowIntervention] = useState(false);
+  const [interventionMsg, setInterventionMsg] = useState('');
   // COLORS for charts
   const COLORS = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#02e6ffff'];
   const TRUSTED_CONTACT_KEY = 'trusted_contact_v1';
@@ -218,6 +221,12 @@ const Dashboard = () => {
       loadDashboardData();
     } else {
       loadDashboardData();
+    }
+
+    // LEVEL 1: High Stress Detection
+    if (parseInt(stressLevel) >= 8 || (mood === 'sad' && parseInt(stressLevel) >= 7)) {
+      setInterventionMsg("I notice your stress level is high. Let's pause for 60 seconds and breathe together.");
+      setShowIntervention(true);
     }
   };
 
@@ -766,6 +775,13 @@ const Dashboard = () => {
           </Card>
         </motion.div>
       </Container>
+
+      {/* Intervention Modal */}
+      <BreathingModal
+        isOpen={showIntervention}
+        onClose={() => setShowIntervention(false)}
+        calmingMessage={interventionMsg}
+      />
     </div>
   );
 };

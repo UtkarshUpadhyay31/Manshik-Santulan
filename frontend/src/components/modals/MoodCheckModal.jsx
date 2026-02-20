@@ -3,12 +3,15 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Button } from '../UI';
 import { saveGuestMoodEntry } from '../../utils/guestMode';
+import BreathingModal from './BreathingModal';
 
 const MoodCheckModal = ({ isOpen, onClose }) => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [stressLevel, setStressLevel] = useState(5);
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [showIntervention, setShowIntervention] = useState(false);
+  const [interventionMsg, setInterventionMsg] = useState('');
 
   const moods = [
     { emoji: '😴', label: 'Tired', value: 'tired' },
@@ -64,6 +67,12 @@ const MoodCheckModal = ({ isOpen, onClose }) => {
     });
 
     setSubmitted(true);
+
+    // LEVEL 1: High Stress Detection
+    if (stressLevel >= 8 || (selectedMood === 'sad' && stressLevel >= 7)) {
+      setInterventionMsg("I notice your stress level is high. Let's pause for 60 seconds and breathe together.");
+      setShowIntervention(true);
+    }
   };
 
   const handleReset = () => {
@@ -197,6 +206,13 @@ const MoodCheckModal = ({ isOpen, onClose }) => {
           </>
         )}
       </motion.div>
+
+      {/* Intervention Modal */}
+      <BreathingModal
+        isOpen={showIntervention}
+        onClose={() => setShowIntervention(false)}
+        calmingMessage={interventionMsg}
+      />
     </motion.div>
   );
 };

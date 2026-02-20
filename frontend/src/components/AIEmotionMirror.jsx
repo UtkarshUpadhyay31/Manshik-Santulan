@@ -3,6 +3,7 @@ import * as faceapi from 'face-api.js';
 import { motion } from 'framer-motion';
 import { Camera, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import { Card, Button } from './UI';
+import { useUIStore } from '../context/store';
 
 const EMOTION_LABELS = ['happy', 'sad', 'angry', 'neutral', 'surprised'];
 
@@ -26,6 +27,7 @@ const MODEL_URL = '/models';
 const ANALYSIS_INTERVAL = 180;
 
 const AIEmotionMirror = () => {
+  const { isCrisisMode } = useUIStore();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const animationRef = useRef(null);
@@ -208,10 +210,18 @@ const AIEmotionMirror = () => {
   };
 
   useEffect(() => {
+    if (isCrisisMode && isAnalyzing) {
+      stopCamera();
+    }
+  }, [isCrisisMode, isAnalyzing]);
+
+  useEffect(() => {
     return () => {
       stopCamera();
     };
   }, []);
+
+  if (isCrisisMode) return null;
 
   return (
     <Card className="relative overflow-hidden border border-emerald-100">

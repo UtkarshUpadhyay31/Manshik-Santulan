@@ -4,11 +4,16 @@ import { X, Send, Bot, User, Sparkles, AlertTriangle, RefreshCw, MessageCircle, 
 import { Button } from '../UI';
 import api from '../../services/api';
 import MentalMicroTools from '../AICoach/MentalMicroTools';
+import CrisisAlertModal from './CrisisAlertModal';
+import { useNavigate } from 'react-router-dom';
 
 const AICoachModal = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
     const [userMessage, setUserMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [analysis, setAnalysis] = useState(null);
+    const [showCrisisModal, setShowCrisisModal] = useState(false);
+    const [isCrisisTriggered, setIsCrisisTriggered] = useState(false);
     const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'tools'
     const [chatHistory, setChatHistory] = useState([
         {
@@ -27,10 +32,29 @@ const AICoachModal = ({ isOpen, onClose }) => {
     }, [chatHistory, isTyping]);
 
     const handleSendMessage = async () => {
-        if (!userMessage.trim() || isTyping) return;
+        if (!userMessage.trim() || isTyping || isCrisisTriggered) return;
 
-        const messageText = userMessage;
-        const newMsg = { type: 'user', message: messageText };
+        const messageText = userMessage.toLowerCase();
+        const crisisKeywords = [
+            "i want to end everything",
+            "i can't live anymore",
+            "no reason to live",
+            "suicide",
+            "i want to disappear forever",
+            "kill myself",
+            "end my life",
+            "better off dead"
+        ];
+
+        const detectedCrisis = crisisKeywords.some(keyword => messageText.includes(keyword));
+
+        if (detectedCrisis) {
+            setIsCrisisTriggered(true);
+            setShowCrisisModal(true);
+            return;
+        }
+
+        const newMsg = { type: 'user', message: userMessage };
         setChatHistory(prev => [...prev, newMsg]);
         setUserMessage('');
         setIsTyping(true);
@@ -68,6 +92,19 @@ const AICoachModal = ({ isOpen, onClose }) => {
                 type: 'ai',
                 message: "I'm having a bit of trouble connecting right now. Can we try again in a moment?"
             }]);
+        }
+    };
+
+    const handleCrisisAction = (action) => {
+        setShowCrisisModal(false);
+        if (action === 'help') {
+            onClose();
+            navigate('/help?crisis=true');
+        } else if (action === 'breathe') {
+            // Option to show breathing animation immediately in-chat could be added here
+            // but requirements say redirect to Help Now page for emergency resources
+            onClose();
+            navigate('/help?crisis=true');
         }
     };
 
@@ -152,10 +189,10 @@ const AICoachModal = ({ isOpen, onClose }) => {
                                         )}
                                         <div
                                             className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-sm leading-relaxed ${msg.type === 'ai'
-                                                    ? msg.isCrisis
-                                                        ? 'bg-red-50 text-red-900 border border-red-100 rounded-bl-none shadow-sm'
-                                                        : 'bg-white text-slate-700 shadow-sm border border-slate-100 rounded-bl-none'
-                                                    : 'bg-slate-900 text-white shadow-md rounded-br-none font-medium'
+                                                ? msg.isCrisis
+                                                    ? 'bg-red-50 text-red-900 border border-red-100 rounded-bl-none shadow-sm'
+                                                    : 'bg-white text-slate-700 shadow-sm border border-slate-100 rounded-bl-none'
+                                                : 'bg-slate-900 text-white shadow-md rounded-br-none font-medium'
                                                 }`}
                                         >
                                             {msg.isCrisis && (
@@ -236,8 +273,8 @@ const AICoachModal = ({ isOpen, onClose }) => {
                                 onClick={handleSendMessage}
                                 disabled={!userMessage.trim() || isTyping}
                                 className={`p-3.5 rounded-2xl transition-all shadow-lg active:scale-95 ${!userMessage.trim() || isTyping
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/20'
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/20'
                                     }`}
                             >
                                 {isTyping ? <RefreshCw size={20} className="animate-spin" /> : <Send size={20} />}
@@ -249,6 +286,11 @@ const AICoachModal = ({ isOpen, onClose }) => {
                     </div>
                 )}
             </motion.div>
+
+            <CrisisAlertModal
+                isOpen={showCrisisModal}
+                onAction={handleCrisisAction}
+            />
         </motion.div>
     );
 };
