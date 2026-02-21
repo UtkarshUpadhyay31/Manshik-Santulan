@@ -31,6 +31,7 @@ const app = express();
 const httpServer = createServer(app);
 
 const PORT = process.env.PORT || 5000;
+app.set('trust proxy', 1); // Trust Render/Vercel proxy
 
 // Security & Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -40,30 +41,47 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // CORS Configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL?.replace(/\/$/, ''), // Remove trailing slash
+  'https://manshik-santulan.vercel.app', // Explicitly add production URL just in case
   'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://manshik-santulan.vercel.app',
-  'https://manshik-santulan-6qcgg8uvw-xmlutkarsh-9355s-projects.vercel.app'
+  'http://127.0.0.1:5173'
 ].filter(Boolean);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    const sanitizedOrigin = origin.replace(/\/$/, '');
+    const isAllowed = allowedOrigins.includes(sanitizedOrigin) || 
+                     /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      console.log("Blocked by CORS:", origin);
-      callback(new Error("Not allowed by CORS"));
+      console.warn(`CORS blocked for origin: ${origin}`);
+      callback(new Error('CORS blocked this origin'));
     }
   },
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
 
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const sanitizedOrigin = origin.replace(/\/$/, '');
+      const isAllowed = allowedOrigins.includes(sanitizedOrigin) || 
+                       /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.warn(`Socket.IO CORS blocked for origin: ${origin}`);
+        callback(new Error('Socket.IO CORS blocked this origin'));
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }
