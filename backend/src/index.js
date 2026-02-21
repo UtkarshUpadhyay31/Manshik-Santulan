@@ -33,30 +33,25 @@ const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1); // Trust Render/Vercel proxy
 
-// Security & Middleware
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cookieParser());
-app.use(express.json({ limit: '10kb' })); // Limit body size
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+// Request Logging - TOP LEVEL for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(`Origin: ${req.headers.origin}`);
+  next();
+});
 
-// CORS Configuration
+// CORS Configuration - Permissive for debugging
 const allowedOrigins = [
-  process.env.FRONTEND_URL?.replace(/\/$/, ''), // Remove trailing slash
-  'https://manshik-santulan.vercel.app', // Explicitly add production URL just in case
+  process.env.FRONTEND_URL?.replace(/\/$/, ''),
+  'https://manshik-santulan.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173'
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    
-    const sanitizedOrigin = origin.replace(/\/$/, '');
-    const isAllowed = allowedOrigins.includes(sanitizedOrigin) || 
-                     /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-
-    if (isAllowed) {
+    // During debugging, let's be more permissive if origin matches our patterns
+    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, '')) || origin.includes('vercel.app')) {
       callback(null, true);
     } else {
       console.warn(`CORS blocked for origin: ${origin}`);
@@ -65,16 +60,23 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cookie'],
+  exposedHeaders: ['Set-Cookie']
 }));
+
+// Security & Middleware
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cookieParser());
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 const io = new Server(httpServer, {
   cors: {
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       const sanitizedOrigin = origin.replace(/\/$/, '');
-      const isAllowed = allowedOrigins.includes(sanitizedOrigin) || 
-                       /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      const isAllowed = allowedOrigins.includes(sanitizedOrigin) ||
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
       if (isAllowed) {
         callback(null, true);
       } else {
