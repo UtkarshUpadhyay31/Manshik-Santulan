@@ -32,17 +32,17 @@ const MentorList = () => {
     const languages = ['Hindi', 'English'];
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pt-24 pb-20">
+        <div className="min-h-screen bg-[#FDFCFB] pt-6 pb-16">
             <Container>
-                <div className="flex items-center gap-4 mb-12">
+                <div className="flex items-center gap-4 mb-6">
                     <Link to="/" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <ArrowLeft size={24} />
                     </Link>
-                    <h1 className="text-4xl font-bold text-slate-900">Find Your Mentor</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900">Find Your Mentor</h1>
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-wrap gap-6 mb-12 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div className="flex flex-wrap gap-6 mb-6 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-sm font-semibold text-slate-500 mb-2">Category</label>
                         <select
@@ -80,7 +80,7 @@ const MentorList = () => {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {mentors.map((mentor) => (
                             <motion.div
                                 key={mentor._id}
@@ -88,7 +88,7 @@ const MentorList = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -8 }}
                             >
-                                <Card className="h-full bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-[2.5rem] p-8 flex flex-col">
+                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-6 flex flex-col">
                                     <div className="flex items-start gap-6 mb-6">
                                         <img
                                             src={mentor.photo}

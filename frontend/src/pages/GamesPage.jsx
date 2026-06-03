@@ -47,21 +47,21 @@ const GamesPage = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 py-20">
+        <div className="min-h-screen bg-slate-50 pt-6 pb-16">
             <Container>
                 {/* Header Actions */}
-                <div className="flex justify-start mb-8">
+                <div className="flex justify-start mb-4">
                     <Button
                         variant="ghost"
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate('/')}
                         className="gap-2 text-slate-600 hover:text-purple-600 hover:bg-purple-50 transition-all rounded-xl"
-                    >
-                        <ArrowLeft size={20} /> Back to Dashboard
+                      >
+                        <ArrowLeft size={20} /> Back to Home
                     </Button>
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-16 space-y-4">
+                <div className="text-center mb-8 space-y-4">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}

@@ -291,13 +291,13 @@ const Dashboard = () => {
   }, [moodHistory]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-6">
       <Container>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
         >
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white shadow-lg">
@@ -376,7 +376,7 @@ const Dashboard = () => {
         </AnimatePresence>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6">
           {[
             { icon: Heart, label: 'Mood', value: todayMood?.mood || 'None', color: 'text-red-500' },
             { icon: Gift, label: 'Tokens', value: user?.tokens || 0, color: 'text-yellow-600', link: '/rewards' },
@@ -401,7 +401,7 @@ const Dashboard = () => {
 
 
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* Mood Entry Form */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <Card>
@@ -526,7 +526,7 @@ const Dashboard = () => {
         </div>
 
         {/* Trusted Person Alert */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
           <Card>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -674,12 +674,12 @@ const Dashboard = () => {
         </motion.div>
 
         {/* AI Emotional Mirror */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
           <AIEmotionMirror />
         </motion.div>
 
         {/* Mind Training Section */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
             <Brain className="w-6 h-6 text-indigo-600" />
             Mind Training Progress
@@ -720,7 +720,7 @@ const Dashboard = () => {
         </motion.div>
 
         {/* History Section */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
           <Card>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold flex items-center gap-2">

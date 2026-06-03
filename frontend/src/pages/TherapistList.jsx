@@ -31,23 +31,23 @@ const TherapistList = () => {
     const types = ['Anxiety', 'Depression', 'Stress', 'Sleep Disorders'];
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pt-24 pb-20">
+        <div className="min-h-screen bg-[#FDFCFB] pt-6 pb-16">
             <Container>
-                <div className="flex items-center gap-4 mb-12">
+                <div className="flex items-center gap-4 mb-6">
                     <Link to="/" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <ArrowLeft size={24} />
                     </Link>
-                    <h1 className="text-4xl font-bold text-slate-900">Consult a Therapist</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900">Consult a Therapist</h1>
                 </div>
 
                 {/* Disclaimer */}
-                <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 text-blue-700 font-medium">
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 text-blue-700 font-medium">
                     <UserCheck size={20} />
                     <p className="text-sm">This is professional medical support. Please share accurate information.</p>
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-wrap gap-4 mb-12 overflow-x-auto pb-4 no-scrollbar">
+                <div className="flex flex-wrap gap-4 mb-6 overflow-x-auto pb-4 no-scrollbar">
                     <button
                         onClick={() => setTherapyType('')}
                         className={`px-6 py-3 rounded-full font-bold transition-all whitespace-nowrap ${!therapyType ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-100'}`}
@@ -78,7 +78,7 @@ const TherapistList = () => {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {doctors.map((doctor) => (
                             <motion.div
                                 key={doctor._id}
@@ -86,7 +86,7 @@ const TherapistList = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -8 }}
                             >
-                                <Card className="h-full bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-[2.5rem] p-8 flex flex-col">
+                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-6 flex flex-col">
                                     <div className="flex items-start gap-6 mb-6">
                                         <div className="relative">
                                             <img

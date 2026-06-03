@@ -19,6 +19,7 @@ import MemoryGame from './components/games/MemoryGame';
 import EmotionBalanceGame from './components/games/EmotionBalanceGame';
 import MoodCatcherGame from './components/games/MoodCatcherGame';
 import RewardsPage from './pages/RewardsPage';
+import HealingWellness from './pages/HealingWellness';
 
 // Auth Pages
 import LoginPage from './pages/LoginPage';
@@ -118,6 +119,11 @@ const AppContent = () => {
         <Route path="/rewards" element={
           <ProtectedRoute>
             <RewardsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/wellness" element={
+          <ProtectedRoute>
+            <HealingWellness />
           </ProtectedRoute>
         } />
 

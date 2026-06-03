@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Brain, TrendingUp, ArrowRight, Menu, X, Activity, Users, Star, UserCheck, LayoutDashboard } from 'lucide-react';
+import { Heart, Brain, TrendingUp, ArrowRight, Menu, X, Activity, Users, Star, UserCheck, LayoutDashboard, Sparkles } from 'lucide-react';
 import { Button, Container, Card } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -120,10 +120,10 @@ const Landing = () => {
       {/* Navigation removed - handled by global Navbar component */}
 
       {/* Main Content Area */}
-      <div className="relative z-10 pt-32 pb-20">
+      <div className="relative z-10 pt-20 pb-10">
 
         {/* Hero Section */}
-        <Container className="mb-32" id="overview">
+        <Container className="mb-16 md:mb-20" id="overview">
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -157,7 +157,7 @@ const Landing = () => {
               </span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="text-xl text-slate-600 mb-16 max-w-2xl leading-relaxed">
+            <motion.p variants={itemVariants} className="text-xl text-slate-600 mb-10 max-w-2xl leading-relaxed">
               A safe, compassionate space to track your emotions, build resilience, and find your inner calm.
             </motion.p>
 
@@ -239,10 +239,10 @@ const Landing = () => {
         </Container>
 
         {/* Daily Actions Section - Refined */}
-        <section id="actions" className="py-32 relative">
+        <section id="actions" className="py-16 md:py-20 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/50 pointer-events-none" />
           <Container className="relative">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
               <div className="max-w-xl">
                 <h2 className="text-4xl font-bold text-slate-900 mb-6">Today's Rituals</h2>
                 <p className="text-lg text-slate-600">Small, intentional actions to ground yourself. Pick one to start.</p>
@@ -294,10 +294,48 @@ const Landing = () => {
               })}
             </div>
 
+            {/* Healing & Wellness Premium Hub Promo Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="mt-12 md:mt-16 overflow-hidden relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 rounded-[2.5rem] blur-xl" />
+              <div className="bg-white/80 backdrop-blur-xl border border-emerald-100/30 rounded-[2.5rem] p-8 md:p-12 relative flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_-15px_rgba(16,185,129,0.05)] hover:shadow-[0_30px_60px_-20px_rgba(16,185,129,0.12)] transition-all duration-500 group">
+                {/* Subtle light leak blobs */}
+                <div className="absolute -top-12 -left-12 w-48 h-48 bg-emerald-200/20 rounded-full blur-3xl group-hover:bg-emerald-200/30 transition-all duration-500" />
+                <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-indigo-200/20 rounded-full blur-3xl group-hover:bg-indigo-200/30 transition-all duration-500" />
+                
+                <div className="space-y-4 max-w-2xl relative z-10 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-100">
+                    <Sparkles size={14} className="animate-pulse" /> PREMIUM MODULE
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+                    Healing & Wellness Hub
+                  </h3>
+                  <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                    Restore your mind's natural equilibrium. Explore mental health yoga, ayurvedic guidance, natural precautions, and interactive calming sound spaces.
+                  </p>
+                </div>
+                
+                <div className="relative z-10 flex-shrink-0 w-full md:w-auto">
+                  <Button
+                    onClick={() => navigate('/wellness')}
+                    className="w-full md:w-auto rounded-full px-8 py-5 text-base bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 font-bold group"
+                  >
+                    Start Healing Journey
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Featured Selection Section */}
             {(featuredMentors.length > 0 || featuredDoctors.length > 0) && (
-              <div className="mt-32">
-                <div className="mb-12">
+              <div className="mt-16 md:mt-24">
+                <div className="mb-8">
                   <h2 className="text-4xl font-bold text-slate-900 mb-4">Meet Our Experts</h2>
                   <p className="text-slate-500 text-lg">Verified professionals ready to support your journey.</p>
                 </div>
@@ -362,9 +400,9 @@ const Landing = () => {
         </section>
 
         {/* Mental Wellness Games Section */}
-        <section className="py-32 relative bg-gradient-to-b from-white/50 to-transparent">
+        <section className="py-16 md:py-20 relative bg-gradient-to-b from-white/50 to-transparent">
           <Container>
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-100 text-purple-700 text-sm font-medium mb-6">
                 <Brain size={16} />
                 Interactive Wellness
@@ -466,9 +504,9 @@ const Landing = () => {
         </section>
 
         {/* Insight Feature - Immersive */}
-        <section className="py-24">
+        <section className="py-12 md:py-16">
           <Container>
-            <div className="bg-slate-900 rounded-[3rem] p-12 md:p-24 relative overflow-hidden text-center md:text-left">
+            <div className="bg-slate-900 rounded-[3rem] p-8 md:p-16 relative overflow-hidden text-center md:text-left">
               {/* Decorative Background */}
               <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/30 rounded-full blur-[100px] -mr-32 -mt-32" />
               <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px] -ml-20 -mb-20" />

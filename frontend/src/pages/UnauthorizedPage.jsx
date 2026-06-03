@@ -24,11 +24,11 @@ const UnauthorizedPage = () => {
                 </p>
 
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/')}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-medium transition-all transform hover:-translate-y-0.5"
                 >
                     <ArrowLeft size={18} />
-                    Back to Dashboard
+                    Back to Home
                 </button>
             </motion.div>
         </div>

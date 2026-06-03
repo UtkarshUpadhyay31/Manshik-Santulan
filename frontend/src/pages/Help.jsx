@@ -166,10 +166,10 @@ const Help = () => {
                     )}
                 </nav>
 
-                <div className="relative z-10 pt-32 pb-20">
+                <div className="relative z-10 pt-20 pb-10">
                     <Container>
                         {/* Reassurance Header (Always Visible) */}
-                        <div className="text-center mb-16">
+                        <div className="text-center mb-10">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -200,10 +200,10 @@ const Help = () => {
                         )}
 
                         {!panicActive && (
-                            <div className="grid lg:grid-cols-2 gap-12">
+                            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
                                 {/* Breathing Section */}
-                                <Card className="p-8 md:p-12 relative overflow-hidden">
-                                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                                <Card className="p-6 md:p-8 relative overflow-hidden">
+                                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                                         <Wind className="text-blue-500" /> Breathing Space
                                     </h2>
 
@@ -271,8 +271,8 @@ const Help = () => {
                                 </Card>
 
                                 {/* Grounding Section */}
-                                <Card className="p-8 md:p-12">
-                                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                                <Card className="p-6 md:p-8">
+                                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                                         <Zap className="text-yellow-500" /> Grounding Exercise
                                     </h2>
 
@@ -311,8 +311,8 @@ const Help = () => {
                         )}
 
                         {/* Quotes Grid */}
-                        <div className="mt-20">
-                            <h2 className="text-2xl font-bold mb-8 text-center flex items-center justify-center gap-3">
+                        <div className="mt-12">
+                            <h2 className="text-2xl font-bold mb-4 text-center flex items-center justify-center gap-3">
                                 <Heart className="text-pink-500" /> Reassuring Words
                             </h2>
                             <div className="grid md:grid-cols-3 gap-6">
@@ -330,11 +330,11 @@ const Help = () => {
                         </div>
 
                         {/* Emergency Contacts Table */}
-                        <div className="mt-24 bg-slate-900 rounded-[3rem] p-8 md:p-16 text-white overflow-hidden relative">
+                        <div className="mt-16 bg-slate-900 rounded-[3rem] p-6 md:p-12 text-white overflow-hidden relative">
                             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[100px] -mr-32 -mt-32" />
-                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
+                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                                 <div className="max-w-md">
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-purple-300 text-sm font-medium mb-6">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-purple-300 text-sm font-medium mb-4">
                                         <Phone size={14} /> Available 24/7
                                     </div>
                                     <h2 className="text-3xl font-bold mb-6">Crisis Support Network</h2>
