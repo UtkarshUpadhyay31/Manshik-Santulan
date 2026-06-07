@@ -133,7 +133,7 @@ const AdminDashboard = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="bg-white/80 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] group hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 transition-all duration-500"
+                            className="bg-white/80 backdrop-blur-2xl p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] group hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 transition-all duration-500"
                         >
                             <div className="flex justify-between items-start mb-6">
                                 <div className={`p-4 rounded-2xl ${stat.color} ${stat.glow} shadow-lg transition-transform group-hover:scale-110 duration-500`}>

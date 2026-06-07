@@ -38,23 +38,25 @@ const AppContent = () => {
   const isAdminPath = location.pathname.startsWith('/admin');
   const isAuthPath = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
   const isGamePath = location.pathname.startsWith('/games/');
+  const isSessionPath = location.pathname.startsWith('/session/');
 
-  // Show navbar only on specific pages (not dashboard, not auth, not admin, not active games)
-  const showNavbar = !['/dashboard'].includes(location.pathname) && !isAdminPath && !isAuthPath && !isGamePath;
+  // Show navbar only on specific pages (not auth, not admin, not active games, not active sessions)
+  const showNavbar = !isAdminPath && !isAuthPath && !isGamePath && !isSessionPath;
 
-  // Show streak banner on all authenticated pages except auth and games
-  const showStreakBanner = !isAdminPath && !isAuthPath && !isGamePath;
+  // Show streak banner on all authenticated pages except auth, games, and sessions
+  const showStreakBanner = !isAdminPath && !isAuthPath && !isGamePath && !isSessionPath;
 
   return (
     <>
       <Notification />
       {showNavbar && <Navbar />}
       {showStreakBanner && (
-        <div className={showNavbar ? 'mt-20' : ''}>
+        <div className={showNavbar ? 'mt-16 md:mt-20' : ''}>
           <StreakBar />
         </div>
       )}
-      <Routes>
+      <div className={showNavbar ? 'pb-28 md:pb-0' : ''}>
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/help" element={<Help />} />
@@ -144,6 +146,7 @@ const AppContent = () => {
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </div>
     </>
   );
 };

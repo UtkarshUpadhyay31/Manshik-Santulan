@@ -32,7 +32,7 @@ const MentorList = () => {
     const languages = ['Hindi', 'English'];
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pt-6 pb-16">
+        <div className="min-h-screen bg-[#FDFCFB] pt-20 sm:pt-24 pb-12 sm:pb-16">
             <Container>
                 <div className="flex items-center gap-4 mb-6">
                     <Link to="/" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
@@ -42,11 +42,11 @@ const MentorList = () => {
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-wrap gap-6 mb-6 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-                    <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-semibold text-slate-500 mb-2">Category</label>
+                <div className="flex flex-wrap gap-4 sm:gap-6 mb-6 bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm">
+                    <div className="flex-1 min-w-[140px] sm:min-w-[200px]">
+                        <label className="block text-xs sm:text-sm font-semibold text-slate-500 mb-2">Category</label>
                         <select
-                            className="w-full p-3 bg-slate-50 border-0 rounded-xl focus:ring-2 focus:ring-purple-500"
+                            className="w-full p-2.5 sm:p-3 bg-slate-50 border-0 rounded-xl focus:ring-2 focus:ring-purple-500 text-sm"
                             value={filters.category}
                             onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                         >
@@ -54,10 +54,10 @@ const MentorList = () => {
                             {categories.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                     </div>
-                    <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-semibold text-slate-500 mb-2">Language</label>
+                    <div className="flex-1 min-w-[140px] sm:min-w-[200px]">
+                        <label className="block text-xs sm:text-sm font-semibold text-slate-500 mb-2">Language</label>
                         <select
-                            className="w-full p-3 bg-slate-50 border-0 rounded-xl focus:ring-2 focus:ring-purple-500"
+                            className="w-full p-2.5 sm:p-3 bg-slate-50 border-0 rounded-xl focus:ring-2 focus:ring-purple-500 text-sm"
                             value={filters.language}
                             onChange={(e) => setFilters({ ...filters, language: e.target.value })}
                         >
@@ -80,7 +80,7 @@ const MentorList = () => {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {mentors.map((mentor) => (
                             <motion.div
                                 key={mentor._id}
@@ -88,19 +88,19 @@ const MentorList = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -8 }}
                             >
-                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-6 flex flex-col">
-                                    <div className="flex items-start gap-6 mb-6">
+                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-5 sm:p-6 flex flex-col">
+                                    <div className="flex flex-col min-[375px]:flex-row items-center min-[375px]:items-start gap-3 sm:gap-6 mb-6 text-center min-[375px]:text-left">
                                         <img
                                             src={mentor.photo}
                                             alt={mentor.name}
-                                            className="w-20 h-20 rounded-2xl object-cover border-2 border-purple-100"
+                                            className="w-16 h-16 min-[375px]:w-20 min-[375px]:h-20 rounded-2xl object-cover border-2 border-purple-100 flex-shrink-0"
                                         />
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-900">{mentor.name}</h3>
-                                            <p className="text-purple-600 font-semibold text-sm">{mentor.category}</p>
-                                            <div className="flex items-center gap-1 mt-1 text-yellow-500 fill-yellow-500">
-                                                <Star size={16} />
-                                                <span className="text-sm font-bold text-slate-700">{mentor.rating}</span>
+                                            <h3 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">{mentor.name}</h3>
+                                            <p className="text-purple-600 font-semibold text-xs sm:text-sm">{mentor.category}</p>
+                                            <div className="flex items-center justify-center min-[375px]:justify-start gap-1 mt-1 text-yellow-500 fill-yellow-500">
+                                                <Star size={14} />
+                                                <span className="text-xs sm:text-sm font-bold text-slate-700">{mentor.rating}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -65,20 +65,20 @@ const SignupPage = () => {
                 transition={{ duration: 0.8 }}
                 className="relative z-10 w-full max-w-xl"
             >
-                <Card className="bg-white/80 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500">
-                    <div className="text-center mb-10">
-                        <Link to="/" className="inline-block mb-6">
+                <Card className="bg-white/80 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500">
+                    <div className="text-center mb-6 md:mb-10">
+                        <Link to="/" className="inline-block mb-4 md:mb-6">
                             <img
                                 src="/mainlogo.jpg"
                                 alt="Manshik Santulan"
-                                className="h-20 w-auto mx-auto drop-shadow-md"
+                                className="h-16 md:h-20 w-auto mx-auto drop-shadow-md"
                             />
                         </Link>
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Start Your Journey</h1>
-                        <p className="text-slate-500 font-medium">Join a community focused on mental clarity.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-1 md:mb-2">Start Your Journey</h1>
+                        <p className="text-slate-500 font-medium text-sm md:text-base">Join a community focused on mental clarity.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
@@ -210,7 +210,7 @@ const SignupPage = () => {
                         </button>
                     </form>
 
-                    <div className="mt-10 text-center border-t border-slate-100 pt-8">
+                    <div className="mt-6 md:mt-10 text-center border-t border-slate-100 pt-6">
                         <p className="text-sm text-slate-500 font-medium">
                             Already have an account?{' '}
                             <Link to="/login" className="text-purple-600 hover:text-purple-800 font-bold transition-all inline-flex items-center gap-1 group/link">

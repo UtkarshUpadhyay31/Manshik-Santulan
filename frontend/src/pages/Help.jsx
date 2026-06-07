@@ -132,41 +132,7 @@ const Help = () => {
     return (
         <ErrorBoundary>
             <div className="min-h-screen bg-[#FDFCFB] text-slate-800 font-sans selection:bg-purple-100 selection:text-purple-900 overflow-x-hidden">
-                {/* Navigation - Same as LandingPage */}
-                <nav className="fixed w-full top-0 z-50 transition-all duration-300 bg-white/60 backdrop-blur-xl border-b border-white/40 supports-[backdrop-filter]:bg-white/30">
-                    <Container className="flex items-center justify-between h-20">
-                        <Link to="/" className="flex items-center gap-3 group">
-                            <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
-                                Manshik Santulan
-                            </span>
-                        </Link>
-
-                        <div className="hidden md:flex items-center gap-10">
-                            <Link to="/" className="text-sm font-medium text-slate-600 hover:text-purple-600 transition-colors relative">Home</Link>
-                            <Link to="/help" className="text-sm font-bold text-purple-600 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-purple-600">Help Now</Link>
-                            <Link to="/dashboard">
-                                <Button size="sm" className="rounded-full px-6 bg-slate-900 hover:bg-slate-800 text-white shadow-xl transition-all hover:-translate-y-0.5">
-                                    Dashboard <ArrowRight size={16} className="ml-2" />
-                                </Button>
-                            </Link>
-                        </div>
-
-                        <button className="md:hidden p-2 text-slate-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                            {mobileMenuOpen ? <X /> : <Menu />}
-                        </button>
-                    </Container>
-                    {mobileMenuOpen && (
-                        <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-white/40 p-6 flex flex-col gap-6">
-                            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium text-slate-900 border-b border-slate-50 pb-2">Home</Link>
-                            <Link to="/help" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-purple-600 border-b border-slate-50 pb-2">Help Now</Link>
-                            <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                                <Button className="w-full rounded-full bg-slate-900 text-white">Dashboard</Button>
-                            </Link>
-                        </div>
-                    )}
-                </nav>
-
-                <div className="relative z-10 pt-20 pb-10">
+                <div className="relative z-10 pt-24 md:pt-28 pb-10">
                     <Container>
                         {/* Reassurance Header (Always Visible) */}
                         <div className="text-center mb-10">

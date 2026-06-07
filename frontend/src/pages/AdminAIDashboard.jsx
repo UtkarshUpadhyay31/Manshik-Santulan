@@ -81,7 +81,7 @@ const AdminAIDashboard = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="bg-white/80 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white shadow-xl shadow-slate-200/40 group hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500"
+                        className="bg-white/80 backdrop-blur-2xl p-5 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white shadow-xl shadow-slate-200/40 group hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500"
                     >
                         <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform`}>
                             <stat.icon size={26} />
@@ -99,7 +99,7 @@ const AdminAIDashboard = () => {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-10 py-6 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab
+                            className={`px-4 sm:px-10 py-4 sm:py-6 text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] transition-all relative ${activeTab === tab
                                 ? 'text-slate-900 bg-white/40'
                                 : 'text-slate-400 hover:text-slate-600'
                                 }`}

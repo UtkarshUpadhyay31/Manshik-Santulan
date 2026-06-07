@@ -106,8 +106,7 @@ const SessionPage = () => {
 
     return (
         <div className="h-screen bg-[#FDFCFB] flex flex-col">
-            {/* Header */}
-            <div className="bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-20 z-40">
+            <div className="bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
                 <div className="flex items-center gap-4">
                     <Link to="/" className="p-2 hover:bg-slate-50 rounded-full transition-colors">
                         <ArrowLeft size={20} />

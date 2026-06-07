@@ -31,7 +31,7 @@ const TherapistList = () => {
     const types = ['Anxiety', 'Depression', 'Stress', 'Sleep Disorders'];
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pt-6 pb-16">
+        <div className="min-h-screen bg-[#FDFCFB] pt-20 sm:pt-24 pb-12 sm:pb-16">
             <Container>
                 <div className="flex items-center gap-4 mb-6">
                     <Link to="/" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
@@ -78,7 +78,7 @@ const TherapistList = () => {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {doctors.map((doctor) => (
                             <motion.div
                                 key={doctor._id}
@@ -86,24 +86,24 @@ const TherapistList = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -8 }}
                             >
-                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-6 flex flex-col">
-                                    <div className="flex items-start gap-6 mb-6">
-                                        <div className="relative">
+                                <Card className="h-full bg-white border border-slate-100 shadow-lg shadow-slate-200/40 rounded-3xl p-5 sm:p-6 flex flex-col">
+                                    <div className="flex flex-col min-[375px]:flex-row items-center min-[375px]:items-start gap-3 sm:gap-6 mb-6 text-center min-[375px]:text-left">
+                                        <div className="relative flex-shrink-0">
                                             <img
                                                 src={doctor.photo}
                                                 alt={doctor.name}
-                                                className="w-24 h-24 rounded-3xl object-cover border-4 border-white shadow-md"
+                                                className="w-16 h-16 min-[375px]:w-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-2 sm:border-4 border-white shadow-md"
                                             />
                                             {doctor.verified && (
-                                                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-4 border-white text-white">
-                                                    <UserCheck size={14} />
+                                                <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white text-white">
+                                                    <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                                 </div>
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-900">{doctor.name}</h3>
-                                            <p className="text-blue-600 font-semibold text-sm">{doctor.qualification}</p>
-                                            <p className="text-slate-500 text-xs font-medium uppercase mt-1 tracking-wider">{doctor.specialization}</p>
+                                            <h3 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">{doctor.name}</h3>
+                                            <p className="text-blue-600 font-semibold text-xs sm:text-sm">{doctor.qualification}</p>
+                                            <p className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase mt-1 tracking-wider">{doctor.specialization}</p>
                                         </div>
                                     </div>
 

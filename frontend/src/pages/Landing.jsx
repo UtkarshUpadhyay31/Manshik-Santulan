@@ -120,36 +120,36 @@ const Landing = () => {
       {/* Navigation removed - handled by global Navbar component */}
 
       {/* Main Content Area */}
-      <div className="relative z-10 pt-20 pb-10">
+      <div className="relative z-10 pt-16 pb-6 lg:pt-20 lg:pb-10">
 
         {/* Hero Section */}
-        <Container className="mb-16 md:mb-20" id="overview">
+        <Container className="mb-10 md:mb-14" id="overview">
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="flex flex-col items-center text-center max-w-4xl mx-auto"
           >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-purple-100 shadow-sm mb-8 text-sm font-medium text-purple-700 backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-purple-100 shadow-sm mb-4 text-xs font-semibold text-purple-700 backdrop-blur-sm">
+              <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-purple-500"></span>
               </span>
               Over 10,000+ daily check-ins this week
             </motion.div>
 
             {/* Logo */}
-            <motion.div variants={itemVariants} className="mb-8">
+            <motion.div variants={itemVariants} className="mb-4">
               <img
                 src="/mainlogo.jpg"
                 alt="Manshik Santulan Logo"
-                className="h-32 w-auto mx-auto drop-shadow-lg"
+                className="h-16 sm:h-20 md:h-24 w-auto mx-auto drop-shadow-md"
               />
             </motion.div>
 
             <motion.h1
               variants={itemVariants}
-              className="text-5xl md:text-7xl font-bold text-slate-900 leading-[1.1] tracking-tight mb-8"
+              className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-[1.15] tracking-tight mb-4"
             >
               Support your mind,<br />
               <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent bg-300% animate-gradient">
@@ -157,53 +157,53 @@ const Landing = () => {
               </span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="text-xl text-slate-600 mb-10 max-w-2xl leading-relaxed">
+            <motion.p variants={itemVariants} className="text-base sm:text-lg lg:text-xl text-slate-600 mb-6 max-w-xl leading-relaxed">
               A safe, compassionate space to track your emotions, build resilience, and find your inner calm.
             </motion.p>
 
             {/* Premium Mood Selector Interface */}
             <motion.div
               variants={itemVariants}
-              className="w-full max-w-2xl bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500"
+              className="w-full max-w-xl bg-white/80 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-              <h2 className="text-2xl font-bold mb-8 text-slate-800">How are you feeling right now?</h2>
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-slate-800">How are you feeling right now?</h2>
 
-              <div className="flex justify-between items-center sm:gap-4 mb-10 overflow-x-auto pb-4 sm:pb-0 px-2 no-scrollbar">
+              <div className="flex justify-between items-center sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-3 sm:pb-0 px-1 no-scrollbar">
                 {moods.map((m) => (
                   <button
                     key={m.value}
                     onClick={() => handleMoodSelect(m.value)}
-                    className="flex flex-col items-center gap-4 min-w-[80px] group/btn transition-all duration-300 p-2 rounded-2xl hover:bg-white hover:shadow-lg hover:-translate-y-2 relative"
+                    className="flex flex-col items-center gap-2.5 min-w-[56px] sm:min-w-[70px] group/btn transition-all duration-300 p-1 rounded-xl hover:bg-white hover:shadow-md hover:-translate-y-1 relative animate-none"
                   >
-                    <span className="text-5xl filter grayscale group-hover/btn:grayscale-0 transition-all duration-300 transform group-hover/btn:scale-110 drop-shadow-sm">
+                    <span className="text-3xl sm:text-4xl md:text-5xl filter grayscale group-hover/btn:grayscale-0 transition-all duration-300 transform group-hover/btn:scale-105 drop-shadow-sm">
                       {m.emoji}
                     </span>
-                    <span className="text-sm font-semibold text-slate-400 group-hover/btn:text-slate-800 transition-colors">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-400 group-hover/btn:text-slate-800 transition-colors">
                       {m.label}
                     </span>
                     {selectedMood === m.value && (
-                      <motion.div layoutId="mood-ring" className="absolute inset-0 border-2 border-purple-500 rounded-2xl" />
+                      <motion.div layoutId="mood-ring" className="absolute inset-0 border-2 border-purple-500 rounded-xl" />
                     )}
                   </button>
                 ))}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-slate-100">
-                <Button onClick={() => setShowBreathing(true)} className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-5 sm:pt-8 border-t border-slate-100">
+                <Button onClick={() => setShowBreathing(true)} className="w-full sm:w-auto rounded-full px-6 py-4 text-sm sm:px-8 sm:py-5 sm:text-base bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all">
                   Start Breathing
                 </Button>
                 {isAuthenticated ? (
                   <Link to="/dashboard" className="w-full sm:w-auto">
-                    <Button variant="secondary" className="w-full rounded-full px-8 py-6 text-base gap-2 group">
-                      <LayoutDashboard size={20} className="text-purple-600" /> Go to Dashboard
+                    <Button variant="secondary" className="w-full rounded-full px-6 py-4 text-sm sm:px-8 sm:py-5 sm:text-base gap-2 group">
+                      <LayoutDashboard size={18} className="text-purple-600" /> Go to Dashboard
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/signup" className="w-full sm:w-auto">
-                    <Button variant="secondary" className="w-full rounded-full px-8 py-6 text-base gap-2 group">
-                      Join Manshik <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    <Button variant="secondary" className="w-full rounded-full px-6 py-4 text-sm sm:px-8 sm:py-5 sm:text-base gap-2 group">
+                      Join Manshik <ArrowRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </Button>
                   </Link>
                 )}
@@ -250,7 +250,7 @@ const Landing = () => {
 
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {[
                 { title: "Morning Check-in", icon: Activity, desc: "Quick emotional weather report", color: "blue", action: 'mood', time: "1 min", styles: { bg: 'bg-blue-50', text: 'text-blue-600' } },
                 { title: "Breathing Space", icon: Heart, desc: "Box breathing for instant calm", color: "purple", action: 'breathing', time: "4 min", styles: { bg: 'bg-purple-50', text: 'text-purple-600' } },
@@ -340,7 +340,7 @@ const Landing = () => {
                   <p className="text-slate-500 text-lg">Verified professionals ready to support your journey.</p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Show Mentors */}
                   {featuredMentors.map(mentor => (
                     <motion.div key={mentor._id} whileHover={{ y: -5 }}>
@@ -413,7 +413,7 @@ const Landing = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {[
                 {
                   title: "Focus Tap",

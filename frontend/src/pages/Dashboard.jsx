@@ -291,42 +291,42 @@ const Dashboard = () => {
   }, [moodHistory]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6">
+    <div className="min-h-screen bg-slate-50 py-4 sm:py-6">
       <Container>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white shadow-lg">
-              <User size={32} />
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+              <User className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
                 Welcome back, {user?.firstName || 'Friend'}
               </h1>
-              <p className="text-slate-500 font-medium">
+              <p className="text-xs sm:text-sm text-slate-500 font-medium">
                 {isAuthenticated ? "You're logged in and synchronized." : "Guest Mode - Your data is stored locally."}
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2.5">
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="secondary" className="gap-2 border-amber-200 text-amber-700 bg-amber-50">
-                  <ShieldCheck size={18} /> Admin Panel
+                <Button variant="secondary" className="gap-1.5 border-amber-200 text-amber-700 bg-amber-50 text-xs py-2 px-3">
+                  <ShieldCheck size={16} /> Admin Panel
                 </Button>
               </Link>
             )}
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-slate-600"
+              className="flex items-center gap-1.5 text-slate-650 text-xs py-2 px-3"
             >
-              <ArrowLeft className="w-4 h-4" /> Home
+              <ArrowLeft className="w-3.5 h-3.5" /> Home
             </Button>
           </div>
         </motion.div>
@@ -483,7 +483,7 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={stressData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <XAxis dataKey="date" tickFormatter={(v) => v ? v.split(',')[0] : ''} tick={{ fontSize: 10 }} />
                     <YAxis domain={[0, 10]} />
                     <Tooltip />
                     <Line type="monotone" dataKey="stress" stroke="#667eea" strokeWidth={2} activeDot={{ r: 8 }} />
@@ -684,7 +684,7 @@ const Dashboard = () => {
             <Brain className="w-6 h-6 text-indigo-600" />
             Mind Training Progress
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { id: 'focus', title: 'Focus Tap', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
               { id: 'memory', title: 'Memory Flip', icon: Brain, color: 'text-purple-500', bg: 'bg-purple-50' },

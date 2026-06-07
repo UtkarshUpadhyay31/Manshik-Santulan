@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Card } from '../UI';
@@ -153,7 +153,7 @@ const BreathingGame = () => {
 
                 {/* Animation Area */}
                 <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                    <div className="relative flex items-center justify-center w-80 h-80">
+                    <div className="relative flex items-center justify-center w-[70vw] h-[70vw] max-w-[20rem] max-h-[20rem]">
                         {/* Outer Glow */}
                         <motion.div
                             animate={{
@@ -161,7 +161,7 @@ const BreathingGame = () => {
                                 opacity: phase === 'inhale' ? 0.3 : 0.1
                             }}
                             transition={{ duration: phase === 'inhale' ? 4 : phase === 'exhale' ? 8 : 0.5 }}
-                            className="absolute rounded-full bg-cyan-400 blur-2xl w-48 h-48"
+                            className="absolute rounded-full bg-cyan-400 blur-2xl w-[60%] h-[60%]"
                         />
 
                         {/* Breathing Circle */}
@@ -171,9 +171,9 @@ const BreathingGame = () => {
                                 duration: phase === 'inhale' ? 4 : phase === 'exhale' ? 8 : 0,
                                 ease: "easeInOut"
                             }}
-                            className={`relative z-10 w-48 h-48 rounded-full ${getCircleColor()} flex items-center justify-center shadow-lg transition-colors duration-1000`}
+                            className={`relative z-10 w-[60%] h-[60%] rounded-full ${getCircleColor()} flex items-center justify-center shadow-lg transition-colors duration-1000`}
                         >
-                            <span className="text-2xl font-bold text-cyan-900 tracking-widest">{getInstruction()}</span>
+                            <span className="text-lg sm:text-2xl font-bold text-cyan-900 tracking-widest">{getInstruction()}</span>
                         </motion.div>
 
                         {/* Ripples */}
@@ -181,7 +181,7 @@ const BreathingGame = () => {
                             <motion.div
                                 animate={{ scale: [1, 2], opacity: [0.5, 0] }}
                                 transition={{ repeat: Infinity, duration: 4 }}
-                                className="absolute border border-cyan-300 rounded-full w-48 h-48"
+                                className="absolute border border-cyan-300 rounded-full w-[60%] h-[60%]"
                             />
                         )}
                     </div>

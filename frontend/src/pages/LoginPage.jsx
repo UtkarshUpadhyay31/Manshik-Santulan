@@ -53,20 +53,20 @@ const LoginPage = () => {
                 transition={{ duration: 0.8 }}
                 className="relative z-10 w-full max-w-md"
             >
-                <Card className="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500">
-                    <div className="text-center mb-10">
-                        <Link to="/" className="inline-block mb-6">
+                <Card className="bg-white/80 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/50 relative overflow-hidden group hover:shadow-[0_30px_80px_-20px_rgba(124,58,237,0.15)] transition-all duration-500">
+                    <div className="text-center mb-6 md:mb-10">
+                        <Link to="/" className="inline-block mb-4 md:mb-6">
                             <img
                                 src="/mainlogo.jpg"
                                 alt="Manshik Santulan"
-                                className="h-20 w-auto mx-auto drop-shadow-md"
+                                className="h-16 md:h-20 w-auto mx-auto drop-shadow-md"
                             />
                         </Link>
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Welcome Back</h1>
-                        <p className="text-slate-500 font-medium">Find your inner balance today.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-1 md:mb-2">Welcome Back</h1>
+                        <p className="text-slate-500 font-medium text-sm md:text-base">Find your inner balance today.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
                             <div className="relative group/input">
@@ -143,7 +143,7 @@ const LoginPage = () => {
                         </button>
                     </form>
 
-                    <div className="mt-10 text-center">
+                    <div className="mt-6 md:mt-10 text-center">
                         <p className="text-sm text-slate-500 font-medium">
                             New to Manshik?{' '}
                             <Link to="/signup" className="text-purple-600 hover:text-purple-800 font-bold transition-all inline-flex items-center gap-1 group/link">

@@ -44,16 +44,23 @@ const MoodCatcherGame = () => {
 
     useEffect(() => {
         if (isPlaying) {
-            const handleMouseMove = (e) => {
+            const handleMove = (e) => {
                 if (!gameAreaRef.current) return;
                 const { left, width } = gameAreaRef.current.getBoundingClientRect();
-                let pos = ((e.clientX - left) / width) * 100;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let pos = ((clientX - left) / width) * 100;
                 pos = Math.max(5, Math.min(95, pos));
                 setBasketPos(pos);
             };
 
-            window.addEventListener('mousemove', handleMouseMove);
-            return () => window.removeEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('touchmove', handleMove, { passive: true });
+            window.addEventListener('touchstart', handleMove, { passive: true });
+            return () => {
+                window.removeEventListener('mousemove', handleMove);
+                window.removeEventListener('touchmove', handleMove);
+                window.removeEventListener('touchstart', handleMove);
+            };
         }
     }, [isPlaying]);
 

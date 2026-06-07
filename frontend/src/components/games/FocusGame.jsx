@@ -162,26 +162,26 @@ const FocusGame = () => {
                         <ArrowLeft size={20} /> Exit
                     </Button>
 
-                    <div className="flex items-center gap-10">
+                    <div className="flex items-center gap-3 sm:gap-10">
                         <div className="text-center group">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Current Score</p>
-                            <div className="flex items-center gap-2">
-                                <Zap className={`w-5 h-5 ${combo > 5 ? 'text-amber-500 animate-pulse' : 'text-slate-300'}`} />
-                                <span className="text-4xl font-black text-slate-800 tracking-tight">{score}</span>
+                            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Current Score</p>
+                            <div className="flex items-center gap-2 justify-center">
+                                <Zap className={`w-4 h-4 sm:w-5 sm:h-5 ${combo > 5 ? 'text-amber-500 animate-pulse' : 'text-slate-300'}`} />
+                                <span className="text-2xl sm:text-4xl font-black text-slate-800 tracking-tight">{score}</span>
                             </div>
                         </div>
 
-                        <div className="w-px h-12 bg-slate-200" />
+                        <div className="w-px h-10 bg-slate-200" />
 
                         <div className="text-center">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Time Remaining</p>
-                            <span className={`text-4xl font-mono font-bold ${timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-slate-700'}`}>
+                            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1">Time Remaining</p>
+                            <span className={`text-2xl sm:text-4xl font-mono font-bold ${timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-slate-700'}`}>
                                 {timeLeft}s
                             </span>
                         </div>
                     </div>
 
-                    <div className="hidden md:block w-32" /> {/* Layout balancer */}
+                    <div className="hidden lg:block w-32" /> {/* Layout balancer */}
                 </div>
 
                 {/* Game Area */}

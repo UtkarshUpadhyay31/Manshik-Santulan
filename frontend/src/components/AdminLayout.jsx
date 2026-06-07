@@ -185,7 +185,7 @@ const AdminLayout = () => {
                 </header>
 
                 {/* Viewport */}
-                <div className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar relative z-10 scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-12 custom-scrollbar relative z-10 scroll-smooth">
                     <Outlet />
                     {/* Subtle Brand Watermark */}
                     <div className="opacity-[0.03] fixed bottom-10 right-10 pointer-events-none select-none">

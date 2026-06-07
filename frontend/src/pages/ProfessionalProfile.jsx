@@ -71,49 +71,49 @@ const ProfessionalProfile = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] pt-24 pb-20">
+        <div className="min-h-screen bg-[#FDFCFB] pt-20 sm:pt-24 pb-12 sm:pb-20">
             <Container>
-                <Link to={type === 'mentor' ? '/mentors' : '/therapists'} className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-8">
+                <Link to={type === 'mentor' ? '/mentors' : '/therapists'} className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-6 sm:mb-8">
                     <ArrowLeft size={20} /> Back to List
                 </Link>
 
-                <div className="grid lg:grid-cols-3 gap-12">
+                <div className="grid lg:grid-cols-3 gap-6 lg:gap-12">
                     {/* Main Info */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <Card className="bg-white border border-slate-100 shadow-2xl rounded-[3rem] p-10 md:p-14">
-                            <div className="flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left">
+                    <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                        <Card className="bg-white border border-slate-100 shadow-2xl rounded-[1.5rem] sm:rounded-[3rem] p-5 sm:p-10 md:p-14">
+                            <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-start text-center md:text-left">
                                 <img
                                     src={professional.photo}
                                     alt={professional.name}
-                                    className="w-48 h-48 rounded-[2rem] object-cover border-8 border-white shadow-2xl shadow-purple-500/10"
+                                    className="w-28 h-28 sm:w-32 md:w-48 md:h-48 rounded-[1.5rem] sm:rounded-[2rem] object-cover border-4 md:border-8 border-white shadow-2xl shadow-purple-500/10 flex-shrink-0"
                                 />
                                 <div className="flex-1">
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
-                                        <h1 className="text-4xl font-bold text-slate-900">{professional.name}</h1>
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 mb-4">
+                                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">{professional.name}</h1>
                                         {type === 'doctor' && professional.verified && (
                                             <span className="px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
                                                 <ShieldCheck size={14} /> VERIFIED
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-xl text-purple-600 font-semibold mb-6 flex items-center justify-center md:justify-start gap-2">
+                                    <p className="text-lg sm:text-xl text-purple-600 font-semibold mb-6 flex items-center justify-center md:justify-start gap-2">
                                         {type === 'mentor' ? professional.category : professional.qualification}
                                     </p>
 
-                                    <div className="grid grid-cols-3 gap-6 mb-8">
+                                    <div className="grid grid-cols-3 gap-2 sm:gap-6 mb-8">
                                         <div className="text-center md:text-left">
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</p>
-                                            <p className="text-xl font-bold text-slate-800">{professional.experience}Yrs</p>
+                                            <p className="text-[9px] min-[375px]:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</p>
+                                            <p className="text-sm min-[375px]:text-base sm:text-xl font-bold text-slate-800">{professional.experience}Yrs</p>
                                         </div>
                                         <div className="text-center md:text-left">
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rating</p>
-                                            <div className="flex items-center justify-center md:justify-start gap-1 text-xl font-bold text-slate-800">
-                                                <Star size={20} className="fill-yellow-500 text-yellow-500" /> {professional.rating}
+                                            <p className="text-[9px] min-[375px]:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rating</p>
+                                            <div className="flex items-center justify-center md:justify-start gap-1 text-sm min-[375px]:text-base sm:text-xl font-bold text-slate-800">
+                                                <Star className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-yellow-500 text-yellow-500" /> {professional.rating}
                                             </div>
                                         </div>
                                         <div className="text-center md:text-left">
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sessions</p>
-                                            <p className="text-xl font-bold text-slate-800">450+</p>
+                                            <p className="text-[9px] min-[375px]:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sessions</p>
+                                            <p className="text-sm min-[375px]:text-base sm:text-xl font-bold text-slate-800">450+</p>
                                         </div>
                                     </div>
 
@@ -136,16 +136,16 @@ const ProfessionalProfile = () => {
                         </Card>
 
                         {/* Reviews Mock */}
-                        <Card className="bg-white border border-slate-100 rounded-[3rem] p-10">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-8">Recent Reviews</h2>
-                            <div className="space-y-6">
+                        <Card className="bg-white border border-slate-100 rounded-[1.5rem] sm:rounded-[3rem] p-5 sm:p-10">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-6 sm:mb-8">Recent Reviews</h2>
+                            <div className="space-y-4 sm:space-y-6">
                                 {[1, 2].map(i => (
-                                    <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div key={i} className="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100">
                                         <div className="flex justify-between items-center mb-3">
-                                            <span className="font-bold text-slate-800">Anonymous User</span>
+                                            <span className="font-bold text-slate-800 text-sm sm:text-base">Anonymous User</span>
                                             <div className="flex text-yellow-500"><Star size={14} className="fill-current" /><Star size={14} className="fill-current" /><Star size={14} className="fill-current" /><Star size={14} className="fill-current" /><Star size={14} className="fill-current" /></div>
                                         </div>
-                                        <p className="text-slate-600">"Incredible session. I felt heard and got practical steps to move forward."</p>
+                                        <p className="text-slate-600 text-sm sm:text-base">"Incredible session. I felt heard and got practical steps to move forward."</p>
                                     </div>
                                 ))}
                             </div>
@@ -153,19 +153,19 @@ const ProfessionalProfile = () => {
                     </div>
 
                     {/* Booking Sidebar */}
-                    <div className="space-y-8">
-                        <Card className="bg-slate-900 text-white rounded-[3rem] p-8 md:p-10 sticky top-24">
-                            <h2 className="text-2xl font-bold mb-8">Book a Session</h2>
+                    <div className="space-y-6 sm:space-y-8">
+                        <Card className="bg-slate-900 text-white rounded-[1.5rem] sm:rounded-[3rem] p-5 sm:p-8 md:p-10 sticky top-24">
+                            <h2 className="text-2xl font-bold mb-6 sm:mb-8">Book a Session</h2>
 
-                            <div className="space-y-8">
+                            <div className="space-y-6 sm:space-y-8">
                                 <div>
-                                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Select Day</p>
-                                    <div className="flex flex-wrap gap-3">
+                                    <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-4">Select Day</p>
+                                    <div className="flex flex-wrap gap-2.5 sm:gap-3">
                                         {professional.availability.map(avail => (
                                             <button
                                                 key={avail.day}
                                                 onClick={() => { setSelectedDay(avail.day); setSelectedSlot(''); }}
-                                                className={`px-4 py-3 rounded-2xl font-bold text-sm transition-all ${selectedDay === avail.day ? 'bg-white text-slate-900 shadow-xl' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                                                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all ${selectedDay === avail.day ? 'bg-white text-slate-900 shadow-xl' : 'bg-white/10 text-white hover:bg-white/20'}`}
                                             >
                                                 {avail.day}
                                             </button>
@@ -175,13 +175,13 @@ const ProfessionalProfile = () => {
 
                                 {selectedDay && (
                                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Select Slot</p>
-                                        <div className="flex flex-wrap gap-3">
+                                        <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-4">Select Slot</p>
+                                        <div className="flex flex-wrap gap-2.5 sm:gap-3">
                                             {professional.availability.find(a => a.day === selectedDay).slots.map(slot => (
                                                 <button
                                                     key={slot}
                                                     onClick={() => setSelectedSlot(slot)}
-                                                    className={`px-4 py-3 rounded-2xl font-bold text-sm transition-all ${selectedSlot === slot ? 'bg-purple-500 text-white shadow-xl shadow-purple-500/40' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                                                    className={`px-3 py-2 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all ${selectedSlot === slot ? 'bg-purple-500 text-white shadow-xl shadow-purple-500/40' : 'bg-white/10 text-white hover:bg-white/20'}`}
                                                 >
                                                     {slot}
                                                 </button>
@@ -190,14 +190,14 @@ const ProfessionalProfile = () => {
                                     </motion.div>
                                 )}
 
-                                <div className="pt-8 border-t border-white/10">
+                                <div className="pt-6 sm:pt-8 border-t border-white/10">
                                     <div className="flex justify-between items-center mb-6">
                                         <div className="text-slate-400 text-sm">Consultation Fee</div>
                                         <div className="text-2xl font-bold font-mono">₹ 499</div>
                                     </div>
                                     <Button
                                         onClick={handleBook}
-                                        className="w-full py-5 rounded-2xl bg-white text-slate-900 font-extrabold text-lg hover:bg-slate-100 disabled:opacity-50"
+                                        className="w-full py-4 sm:py-5 rounded-2xl bg-white text-slate-900 font-extrabold text-base sm:text-lg hover:bg-slate-100 disabled:opacity-50"
                                         disabled={!selectedSlot}
                                     >
                                         Confirm Booking

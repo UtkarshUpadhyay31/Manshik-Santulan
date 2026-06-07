@@ -343,18 +343,18 @@ const EmotionBalanceGame = () => {
                                     className="relative"
                                 >
                                     {/* Scale Beam */}
-                                    <div className="w-96 h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full shadow-lg relative">
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-slate-800 rounded-full" />
+                                    <div className="w-[70vw] max-w-[24rem] min-w-[15rem] h-3 sm:h-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-full shadow-lg relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 sm:w-6 sm:h-6 bg-slate-800 rounded-full" />
                                     </div>
 
                                     {/* Left Plate */}
-                                    <div className="absolute -left-4 -top-16 w-32 h-32 bg-gradient-to-br from-red-100 to-red-50 rounded-full border-4 border-red-300 shadow-xl flex items-center justify-center">
-                                        <Heart size={32} className="text-red-500" />
+                                    <div className="absolute -left-6 sm:-left-4 -top-8 sm:-top-16 w-16 h-16 sm:w-32 sm:h-32 bg-gradient-to-br from-red-100 to-red-50 rounded-full border-2 sm:border-4 border-red-300 shadow-xl flex items-center justify-center">
+                                        <Heart className="text-red-500 w-6 h-6 sm:w-12 sm:h-12" />
                                     </div>
 
                                     {/* Right Plate */}
-                                    <div className="absolute -right-4 -top-16 w-32 h-32 bg-gradient-to-br from-green-100 to-green-50 rounded-full border-4 border-green-300 shadow-xl flex items-center justify-center">
-                                        <Sparkles size={32} className="text-green-500" />
+                                    <div className="absolute -right-6 sm:-right-4 -top-8 sm:-top-16 w-16 h-16 sm:w-32 sm:h-32 bg-gradient-to-br from-green-100 to-green-50 rounded-full border-2 sm:border-4 border-green-300 shadow-xl flex items-center justify-center">
+                                        <Sparkles className="text-green-500 w-6 h-6 sm:w-12 sm:h-12" />
                                     </div>
                                 </motion.div>
                             </div>
